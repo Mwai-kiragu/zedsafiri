@@ -47,7 +47,10 @@ export const SignInForm = () => {
           </h1>
           <div className="flex items-center gap-2">
             <Button
-              onClick={toggleLanguage}
+              onClick={() => {
+                console.log('Language toggle button clicked');
+                toggleLanguage();
+              }}
               variant="outline"
               size="sm"
               className="flex items-center gap-2 h-8 px-3 py-1"

@@ -229,7 +229,12 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [currentLanguage]);
 
   const toggleLanguage = () => {
-    setCurrentLanguage(prev => prev === 'en' ? 'sw' : 'en');
+    console.log('Before toggle - Current language:', currentLanguage);
+    setCurrentLanguage(prev => {
+      const newLang = prev === 'en' ? 'sw' : 'en';
+      console.log('After toggle - New language:', newLang);
+      return newLang;
+    });
   };
 
   const getCurrentLanguageDisplay = () => {
