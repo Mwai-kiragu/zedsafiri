@@ -8,7 +8,7 @@ import { EyeIcon, EyeOffIcon, Globe } from "lucide-react"
 import { Header } from "@/components/Header"
 import { MarketingSection } from "@/components/MarketingSection"
 import googleIcon from "@/assets/google-icon.png"
-import appleIcon from "@/assets/apple-icon.png"
+import appleIcon from "@/assets/apple-pay-icon.png"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface SignUpFormData {
