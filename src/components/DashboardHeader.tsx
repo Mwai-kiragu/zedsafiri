@@ -67,7 +67,7 @@ const DashboardHeader = () => {
               aria-label="Select language"
             >
               <Globe className="w-4 h-4" />
-              <span className="hidden sm:inline">{getCurrentLanguageDisplay()}</span>
+              <span>{getCurrentLanguageDisplay()}</span>
               <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
