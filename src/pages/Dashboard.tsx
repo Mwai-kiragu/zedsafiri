@@ -6,6 +6,7 @@ import BookingForm from '@/components/BookingForm';
 import RecentBookings from '@/components/RecentBookings';
 import BookingSimulation from '@/components/BookingSimulation';
 import BookingsView from '@/components/BookingsView';
+import MyTickets from '@/components/MyTickets';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
@@ -21,7 +22,12 @@ const Dashboard = () => {
   const renderMainContent = () => {
     switch (activeTab) {
       case 'bookings':
-        return <BookingsView />;
+        return (
+          <div className="space-y-8">
+            <MyTickets />
+            <BookingsView />
+          </div>
+        );
       
       case 'settings':
         return (

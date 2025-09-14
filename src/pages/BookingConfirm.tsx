@@ -11,6 +11,7 @@ import { ArrowLeft, BusIcon, TrainIcon, MapPin, Clock, CreditCard, Smartphone, G
 import { useToast } from "@/hooks/use-toast"
 import Layout from "@/components/Layout"
 import { currencyConverter, type CurrencyRate } from "@/services/currencyConverter"
+import { ticketService } from "@/services/ticketService"
 
 interface BookingData {
   booking: any
@@ -53,12 +54,21 @@ const BookingConfirm = () => {
   const handleConfirmBooking = async () => {
     setIsProcessing(true)
     
-    // Simulate API call
+    // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 2000))
+    
+    // Save ticket to local storage
+    const savedTicket = ticketService.saveTicket(
+      { booking, searchParams },
+      passengerDetails,
+      paymentMethod.toUpperCase(),
+      totalTZS,
+      'TZS'
+    )
     
     toast({
       title: "Booking Confirmed!",
-      description: `Your ${booking.type} ticket has been booked successfully. Check your email for details.`,
+      description: `Your ${booking.type} ticket has been booked successfully. PNR: ${savedTicket.pnr}`,
     })
     
     setIsProcessing(false)
