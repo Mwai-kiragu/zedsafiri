@@ -4,8 +4,9 @@ import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, Globe } from "lucide-react"
 import googleIcon from "@/assets/google-icon.png"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface SignInFormData {
   phoneNumber?: string
@@ -19,6 +20,7 @@ export const SignInForm = () => {
   const [loginMethod, setLoginMethod] = useState<"mobile" | "email">("mobile")
   const [dialCode, setDialCode] = useState("+255")
   const navigate = useNavigate()
+  const { t, toggleLanguage, getCurrentLanguageDisplay } = useLanguage()
   
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>()
 
@@ -41,24 +43,35 @@ export const SignInForm = () => {
       <div className="flex flex-col items-start gap-4 w-full max-sm:gap-3">
         <div className="flex justify-between items-center w-full">
           <h1 className="text-[#006FFD] text-lg font-bold leading-6 tracking-[0.09px]">
-            Sign in
+            {t('auth.signin')}
           </h1>
-          <div className="flex justify-center items-center gap-2 px-4 py-2 rounded-lg">
-            <p className="text-[#71727A] text-xs font-normal tracking-[0.12px]">
-              Create an account?{" "}
-              <Link to="/signup" className="text-[#006FFD] font-bold hover:underline">
-                Sign up
-              </Link>
-            </p>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={toggleLanguage}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 h-8 px-3 py-1"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="text-xs font-medium">{getCurrentLanguageDisplay()}</span>
+            </Button>
+            <div className="flex justify-center items-center gap-2 px-4 py-2 rounded-lg">
+              <p className="text-[#71727A] text-xs font-normal tracking-[0.12px]">
+                {t('auth.createAccount')}{" "}
+                <Link to="/signup" className="text-[#006FFD] font-bold hover:underline">
+                  {t('auth.signup')}
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
         
         <h2 className="w-[315px] text-[#111] text-[28px] font-normal leading-8 max-sm:w-full max-sm:text-2xl max-sm:leading-7">
-          Hi, Welcome
+          {t('auth.welcome')}
         </h2>
         
         <p className="w-full text-[#71727A] text-base font-normal leading-[22px] max-sm:text-sm max-sm:leading-5">
-          Sign in to book or view your tickets.
+          {t('auth.signinSubtitle')}
         </p>
 
         <Tabs 
@@ -72,13 +85,13 @@ export const SignInForm = () => {
                 value="mobile"
                 className="flex justify-center items-center gap-2.5 flex-[1_0_0] p-3 rounded-xl data-[state=active]:text-[#006FFD] data-[state=active]:bg-transparent data-[state=inactive]:text-[#71727A] data-[state=inactive]:bg-transparent"
               >
-                <span className="font-bold text-center text-xs">Mobile Number</span>
+                <span className="font-bold text-center text-xs">{t('auth.mobileNumber')}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="email"
                 className="flex justify-center items-center gap-2.5 flex-[1_0_0] p-3 rounded-xl data-[state=active]:text-[#006FFD] data-[state=active]:bg-transparent data-[state=inactive]:text-[#71727A] data-[state=inactive]:bg-transparent"
               >
-                <span className="font-bold text-center text-xs">Email</span>
+                <span className="font-bold text-center text-xs">{t('auth.email')}</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -102,10 +115,10 @@ export const SignInForm = () => {
                     </select>
                     <Input
                       {...register("phoneNumber", { 
-                        required: loginMethod === "mobile" ? "Phone number is required" : false 
+                        required: loginMethod === "mobile" ? t('auth.phoneNumber') + " is required" : false 
                       })}
                       type="tel"
-                      placeholder="Phone Number"
+                      placeholder={t('auth.phoneNumber')}
                       className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
                   </div>
@@ -121,14 +134,14 @@ export const SignInForm = () => {
                 <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
                   <Input
                     {...register("email", { 
-                      required: loginMethod === "email" ? "Email is required" : false,
+                      required: loginMethod === "email" ? t('auth.email') + " is required" : false,
                       pattern: loginMethod === "email" ? {
                         value: /^\S+@\S+$/i,
                         message: "Invalid email address"
                       } : undefined
                     })}
                     type="email"
-                    placeholder="Email Address"
+                    placeholder={t('auth.emailAddress')}
                     className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
@@ -141,10 +154,10 @@ export const SignInForm = () => {
           <div className="flex flex-col items-start gap-2 w-full bg-white">
             <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
               <div className="flex items-center gap-4 flex-[1_0_0]">
-                <Input
-                  {...register("password", { required: "Password is required" })}
+              <Input
+                  {...register("password", { required: t('auth.password') + " is required" })}
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder={t('auth.password')}
                   className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
@@ -170,7 +183,7 @@ export const SignInForm = () => {
               type="button"
               className="w-full text-[#006FFD] text-xs font-bold text-left hover:underline"
             >
-              Forgot Password?
+              {t('auth.forgotPassword')}
             </button>
 
             <div className="flex flex-col items-start gap-4 w-full">
@@ -180,7 +193,7 @@ export const SignInForm = () => {
                 size="custom"
                 className="flex h-12 justify-center items-center gap-2 w-full box-border bg-[#E5F1FF] px-4 py-3 rounded-xl max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5"
               >
-                <span className="text-[#006FFD] text-xs font-bold">Sign In</span>
+                <span className="text-[#006FFD] text-xs font-bold">{t('auth.signin')}</span>
               </Button>
             </div>
           </form>
@@ -188,7 +201,7 @@ export const SignInForm = () => {
 
         <div className="flex flex-col items-center gap-6 w-full">
           <p className="text-[#71727A] text-center text-sm font-bold">
-            or continue with
+            {t('auth.orContinueWith')}
           </p>
           <div className="flex items-start gap-4 w-full max-sm:flex-col max-sm:gap-3">
             <Button
@@ -198,7 +211,7 @@ export const SignInForm = () => {
               className="flex h-10 justify-center items-center gap-2 flex-[1_0_0] bg-[#ED3241] px-4 py-2 rounded-[63px] max-sm:w-full max-sm:h-11"
             >
               <img src={googleIcon} alt="Google" className="w-3 h-3" />
-              <span className="text-[#FBFBFB] text-xs font-bold">Google</span>
+              <span className="text-[#FBFBFB] text-xs font-bold">{t('auth.google')}</span>
             </Button>
             <Button
               type="button"
@@ -209,7 +222,7 @@ export const SignInForm = () => {
               <div className="w-3 h-3 relative">
                 <div className="w-3 h-3 absolute bg-[#FBFBFB] left-0 top-0" />
               </div>
-              <span className="text-[#FBFBFB] text-xs font-bold">Apple</span>
+              <span className="text-[#FBFBFB] text-xs font-bold">{t('auth.apple')}</span>
             </Button>
           </div>
         </div>

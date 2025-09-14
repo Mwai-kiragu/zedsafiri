@@ -1,13 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface Translations {
   [key: string]: string;
 }
 
 interface LanguageContextType {
-  currentLanguage: string;
-  setLanguage: (language: string) => void;
+  currentLanguage: 'en' | 'sw';
+  toggleLanguage: () => void;
   t: (key: string) => string;
+  getCurrentLanguageDisplay: () => string;
 }
 
 const translations: Record<string, Translations> = {
@@ -89,7 +90,28 @@ const translations: Record<string, Translations> = {
     
     // Settings
     'settings.title': 'Account Settings',
-    'settings.subtitle': 'Manage your preferences, notifications, and account details'
+    'settings.subtitle': 'Manage your preferences, notifications, and account details',
+    
+    // Auth Forms
+    'auth.signin': 'Sign in',
+    'auth.signup': 'Sign up',
+    'auth.welcome': 'Hi, Welcome',
+    'auth.signupWelcome': 'Create Account',
+    'auth.signinSubtitle': 'Sign in to book or view your tickets.',
+    'auth.signupSubtitle': 'Create an account to book tickets and manage your trips.',
+    'auth.mobileNumber': 'Mobile Number',
+    'auth.email': 'Email',
+    'auth.emailAddress': 'Email Address',
+    'auth.password': 'Password',
+    'auth.confirmPassword': 'Confirm Password',
+    'auth.fullName': 'Full Name',
+    'auth.phoneNumber': 'Phone Number',
+    'auth.forgotPassword': 'Forgot Password?',
+    'auth.createAccount': 'Create an account?',
+    'auth.alreadyHaveAccount': 'Already have an account?',
+    'auth.orContinueWith': 'or continue with',
+    'auth.google': 'Google',
+    'auth.apple': 'Apple'
   },
   sw: {
     // Navigation
@@ -169,18 +191,49 @@ const translations: Record<string, Translations> = {
     
     // Settings
     'settings.title': 'Mipangilio ya Akaunti',
-    'settings.subtitle': 'Dhibiti mapendeleo yako, arifa, na maelezo ya akaunti'
+    'settings.subtitle': 'Dhibiti mapendeleo yako, arifa, na maelezo ya akaunti',
+    
+    // Auth Forms
+    'auth.signin': 'Ingia',
+    'auth.signup': 'Jiunge',
+    'auth.welcome': 'Hujambo, Karibu',
+    'auth.signupWelcome': 'Tengeneza Akaunti',
+    'auth.signinSubtitle': 'Ingia ili kuhifadhi au kuona tiketi zako.',
+    'auth.signupSubtitle': 'Tengeneza akaunti ili kuhifadhi tiketi na kusimamia safari zako.',
+    'auth.mobileNumber': 'Namba ya Simu',
+    'auth.email': 'Barua Pepe',
+    'auth.emailAddress': 'Anwani ya Barua Pepe',
+    'auth.password': 'Nenosiri',
+    'auth.confirmPassword': 'Thibitisha Nenosiri',
+    'auth.fullName': 'Jina Kamili',
+    'auth.phoneNumber': 'Namba ya Simu',
+    'auth.forgotPassword': 'Umesahau Nenosiri?',
+    'auth.createAccount': 'Tengeneza akaunti?',
+    'auth.alreadyHaveAccount': 'Tayari una akaunti?',
+    'auth.orContinueWith': 'au endelea na',
+    'auth.google': 'Google',
+    'auth.apple': 'Apple'
   }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState('en');
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'sw'>(() => {
+    const saved = localStorage.getItem('language');
+    return (saved === 'sw' || saved === 'en') ? saved : 'en';
+  });
 
-  const setLanguage = (language: string) => {
-    const langCode = language === 'Kiswahili' ? 'sw' : 'en';
-    setCurrentLanguage(langCode);
+  useEffect(() => {
+    localStorage.setItem('language', currentLanguage);
+  }, [currentLanguage]);
+
+  const toggleLanguage = () => {
+    setCurrentLanguage(prev => prev === 'en' ? 'sw' : 'en');
+  };
+
+  const getCurrentLanguageDisplay = () => {
+    return currentLanguage === 'en' ? 'English' : 'Kiswahili';
   };
 
   const t = (key: string): string => {
@@ -188,7 +241,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   return (
-    <LanguageContext.Provider value={{ currentLanguage, setLanguage, t }}>
+    <LanguageContext.Provider value={{ currentLanguage, toggleLanguage, t, getCurrentLanguageDisplay }}>
       {children}
     </LanguageContext.Provider>
   );

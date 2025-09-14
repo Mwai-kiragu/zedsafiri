@@ -13,19 +13,15 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
-  const { currentLanguage, setLanguage, t } = useLanguage();
+  const { currentLanguage, toggleLanguage, t, getCurrentLanguageDisplay } = useLanguage();
 
   const languages = [
     { code: 'en', name: 'English', displayName: t('header.english') },
     { code: 'sw', name: 'Kiswahili', displayName: t('header.swahili') }
   ];
 
-  const getCurrentLanguageDisplay = () => {
-    return languages.find(lang => lang.code === currentLanguage)?.displayName || 'English';
-  };
-
-  const handleLanguageChange = (language: string) => {
-    setLanguage(language);
+  const handleLanguageChange = () => {
+    toggleLanguage();
   };
 
   const handleProfileClick = () => {
@@ -76,7 +72,7 @@ const DashboardHeader = () => {
               <DropdownMenuItem 
                 key={language.code}
                 className="cursor-pointer flex items-center justify-between"
-                onClick={() => handleLanguageChange(language.name)}
+                onClick={handleLanguageChange}
               >
                 <span>{language.displayName}</span>
                 {currentLanguage === language.code && (
