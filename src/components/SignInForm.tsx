@@ -21,6 +21,8 @@ export const SignInForm = () => {
 
   const onSubmit = (data: SignInFormData) => {
     console.log("Sign in data:", data)
+    // Navigate to dashboard after successful login
+    window.location.href = '/dashboard'
   }
 
   const handleSocialLogin = (provider: "google" | "apple") => {
