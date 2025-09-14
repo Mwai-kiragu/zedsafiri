@@ -8,8 +8,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardHeader = () => {
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    // Navigate to settings tab or profile page
+    window.location.href = '/dashboard?tab=settings';
+  };
+
+  const handleLogoutClick = () => {
+    // Handle logout - clear session and redirect to login
+    navigate('/');
+  };
+
   return (
     <header className="flex w-full items-center justify-between flex-wrap py-4 max-md:max-w-full">
       <img
@@ -48,12 +61,12 @@ const DashboardHeader = () => {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={handleProfileClick}>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+            <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={handleLogoutClick}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </DropdownMenuItem>
