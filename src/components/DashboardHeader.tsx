@@ -1,5 +1,5 @@
-import React from 'react';
-import { Globe, Bell, ChevronDown, User, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { Globe, Bell, ChevronDown, User, LogOut, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -12,6 +12,17 @@ import { useNavigate } from 'react-router-dom';
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'sw', name: 'Kiswahili' }
+  ];
+
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
+    // Here you would typically handle language change logic
+  };
 
   const handleProfileClick = () => {
     // Navigate to settings tab or profile page
@@ -32,10 +43,31 @@ const DashboardHeader = () => {
       />
       
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" className="gap-2">
-          <Globe className="w-3 h-3" />
-          English
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Globe className="w-3 h-3" />
+              {selectedLanguage}
+              <ChevronDown className="w-3 h-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            {languages.map((language) => (
+              <DropdownMenuItem 
+                key={language.code}
+                className="cursor-pointer"
+                onClick={() => handleLanguageChange(language.name)}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span>{language.name}</span>
+                  {selectedLanguage === language.name && (
+                    <Check className="w-4 h-4" />
+                  )}
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         
         <Button variant="outline" size="icon" className="w-12 h-12">
           <Bell className="w-6 h-6" />
