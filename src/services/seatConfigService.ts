@@ -186,6 +186,9 @@ export class SeatConfigService {
   
   // Test data - some seats are pre-occupied for testing
   private static isTestSeatOccupied(tripId: string, seatId: string): boolean {
+    // Add safety check for undefined tripId
+    if (!tripId || !seatId) return false;
+    
     // For TR123 (test trip), mark seat 1A as occupied
     if (tripId === 'TR123' && seatId === '1A') return true;
     
@@ -198,6 +201,9 @@ export class SeatConfigService {
   }
   
   private static isTestSeatBlocked(tripId: string, seatId: string): boolean {
+    // Add safety check for undefined parameters
+    if (!tripId || !seatId) return false;
+    
     // Block seats that are out of service
     return ['12D'].includes(seatId); // Last seat often blocked for maintenance
   }
