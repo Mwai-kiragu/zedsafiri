@@ -169,8 +169,23 @@ export class PaymentService {
     return [
       {
         id: 'STK_PUSH',
-        name: 'M-Pesa STK Push',
+        name: 'M-Pesa',
         icon: '📱'
+      },
+      {
+        id: 'STK_PUSH',
+        name: 'Tigo Pesa',
+        icon: '📲'
+      },
+      {
+        id: 'STK_PUSH',
+        name: 'Airtel Money',
+        icon: '📞'
+      },
+      {
+        id: 'STK_PUSH',
+        name: 'Halopesa',
+        icon: '💰'
       },
       {
         id: 'CARD',

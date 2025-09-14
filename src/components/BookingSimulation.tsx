@@ -194,7 +194,7 @@ const BookingSimulation = () => {
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">LATRA E-Ticketing System Simulation</h1>
       
-      <Tabs defaultValue="booking" className="w-full">
+      <Tabs defaultValue="payment" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="booking">Booking Flow</TabsTrigger>
           <TabsTrigger value="seats">Seat Selection</TabsTrigger>
@@ -378,26 +378,70 @@ const BookingSimulation = () => {
 
         <TabsContent value="payment" className="space-y-4">
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Payment Methods</h2>
-            {currentBooking && currentBooking.state === 'AWAITING_PAYMENT' ? (
-              <div className="space-y-3">
-                {PaymentService.getPaymentMethods().map((method) => (
-                  <Button
-                    key={method.id}
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => initiatePayment(method.id)}
-                  >
-                    <span className="mr-2">{method.icon}</span>
-                    {method.name}
-                  </Button>
-                ))}
+            <h2 className="text-xl font-semibold mb-4">Mobile Money & Payment Methods</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium mb-3 text-green-700">📱 Mobile Money</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {PaymentService.getPaymentMethods().filter(method => method.id === 'STK_PUSH').map((method, index) => (
+                    <Button
+                      key={`${method.id}-${index}`}
+                      variant="outline"
+                      className="h-16 justify-start border-green-200 hover:bg-green-50 hover:border-green-300"
+                      onClick={() => currentBooking && currentBooking.state === 'AWAITING_PAYMENT' ? initiatePayment(method.id) : alert('Create a booking first')}
+                    >
+                      <span className="mr-3 text-2xl">{method.icon}</span>
+                      <div className="text-left">
+                        <div className="font-medium">{method.name}</div>
+                        <div className="text-sm text-muted-foreground">Instant payment</div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
               </div>
-            ) : (
-              <p className="text-muted-foreground">
-                Create a booking first to access payment options
-              </p>
-            )}
+              
+              <div>
+                <h3 className="text-lg font-medium mb-3 text-blue-700">💳 Other Payment Methods</h3>
+                <div className="space-y-2">
+                  {PaymentService.getPaymentMethods().filter(method => method.id !== 'STK_PUSH').map((method, index) => (
+                    <Button
+                      key={`${method.id}-${index}`}
+                      variant="outline"
+                      className="w-full justify-start h-12 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                      onClick={() => currentBooking && currentBooking.state === 'AWAITING_PAYMENT' ? initiatePayment(method.id) : alert('Create a booking first')}
+                    >
+                      <span className="mr-3 text-xl">{method.icon}</span>
+                      <div className="text-left">
+                        <div className="font-medium">{method.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {method.id === 'CARD' ? 'Visa, Mastercard accepted' : 'Bank to bank transfer'}
+                        </div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              {!currentBooking || currentBooking.state !== 'AWAITING_PAYMENT' ? (
+                <div className="text-center p-6 bg-muted/50 rounded-lg">
+                  <p className="text-muted-foreground mb-2">No active booking found</p>
+                  <p className="text-sm text-muted-foreground">Go to "Booking Flow" tab to create a booking first</p>
+                </div>
+              ) : (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="font-medium text-green-800">Ready to pay</span>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    Amount: <strong>TZS {currentBooking.fareBreakdown.grossFare.toLocaleString()}</strong>
+                  </p>
+                  <p className="text-sm text-green-700">
+                    PNR: <strong>{currentBooking.pnr}</strong>
+                  </p>
+                </div>
+              )}
+            </div>
           </Card>
         </TabsContent>
 
