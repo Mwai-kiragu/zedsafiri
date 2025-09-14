@@ -7,10 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, Calendar, MapPin, User, Phone, Mail, CreditCard } from 'lucide-react';
 import { SIMULATED_BOOKINGS, getBookingsByState, getRecentBookings } from '@/data/simulatedBookings';
 import { Booking, BookingState } from '@/types/booking';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const BookingsView = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const { t } = useLanguage();
 
   const getStateColor = (state: BookingState): string => {
     switch (state) {
@@ -65,18 +67,18 @@ const BookingsView = () => {
         </Badge>
       </div>
       
-      <div className="space-y-2 text-sm">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-muted-foreground" />
-          <span>Route: {booking.tripId.includes('dar_dodoma') ? 'Dar es Salaam → Dodoma' : 
-                       booking.tripId.includes('dar_arusha') ? 'Dar es Salaam → Arusha' :
-                       booking.tripId.includes('dar_mwanza') ? 'Dar es Salaam → Mwanza' :
-                       booking.tripId.includes('dar_mbeya') ? 'Dar es Salaam → Mbeya' :
-                       booking.tripId.includes('dar_tanga') ? 'Dar es Salaam → Tanga' :
-                       booking.tripId.includes('dar_morogoro') ? 'Dar es Salaam → Morogoro' :
-                       booking.tripId.includes('arusha_mwanza') ? 'Arusha → Mwanza' :
-                       booking.tripId.includes('dar_kigoma') ? 'Dar es Salaam → Kigoma' : 'Unknown Route'}</span>
-        </div>
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-muted-foreground" />
+            <span>{t('bookings.route')}: {booking.tripId.includes('dar_dodoma') ? 'Dar es Salaam → Dodoma' : 
+                         booking.tripId.includes('dar_arusha') ? 'Dar es Salaam → Arusha' :
+                         booking.tripId.includes('dar_mwanza') ? 'Dar es Salaam → Mwanza' :
+                         booking.tripId.includes('dar_mbeya') ? 'Dar es Salaam → Mbeya' :
+                         booking.tripId.includes('dar_tanga') ? 'Dar es Salaam → Tanga' :
+                         booking.tripId.includes('dar_morogoro') ? 'Dar es Salaam → Morogoro' :
+                         booking.tripId.includes('arusha_mwanza') ? 'Arusha → Mwanza' :
+                         booking.tripId.includes('dar_kigoma') ? 'Dar es Salaam → Kigoma' : 'Unknown Route'}</span>
+          </div>
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-muted-foreground" />
           <span>{booking.createdAt.toLocaleDateString('en-GB')}</span>
@@ -89,10 +91,10 @@ const BookingsView = () => {
       
       <div className="flex items-center justify-between mt-3 pt-3 border-t">
         <span className="text-xs text-muted-foreground">
-          Seats: {booking.seatNumbers.join(', ')}
+          {t('bookings.seats')}: {booking.seatNumbers.join(', ')}
         </span>
         <span className="text-xs text-muted-foreground">
-          {booking.tripId.includes('train') ? '🚂 Train' : '🚌 Bus'}
+          {booking.tripId.includes('train') ? `🚂 ${t('bookings.train')}` : `🚌 ${t('bookings.bus')}`}
         </span>
       </div>
     </Card>
@@ -103,7 +105,7 @@ const BookingsView = () => {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h2 className="text-2xl font-bold">{booking.pnr}</h2>
-          <p className="text-muted-foreground">Booking Details</p>
+          <p className="text-muted-foreground">{t('bookings.bookingInfo')}</p>
         </div>
         <Badge className={`${getStateColor(booking.state)} text-lg px-3 py-1`}>
           {getStateIcon(booking.state)} {booking.state}
@@ -114,10 +116,10 @@ const BookingsView = () => {
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold mb-2 flex items-center gap-2">
-              <User className="w-4 h-4" /> Passenger Information
+              <User className="w-4 h-4" /> {t('bookings.passengerDetails')}
             </h3>
             <div className="space-y-2 text-sm">
-              <p><strong>Name:</strong> {booking.passengerName}</p>
+              <p><strong>{t('bookings.name')}:</strong> {booking.passengerName}</p>
               <p className="flex items-center gap-2">
                 <Phone className="w-3 h-3" />
                 {booking.passengerPhone}
@@ -131,11 +133,11 @@ const BookingsView = () => {
 
           <div>
             <h3 className="font-semibold mb-2 flex items-center gap-2">
-              <MapPin className="w-4 h-4" /> Trip Information
+              <MapPin className="w-4 h-4" /> {t('bookings.tripDetails')}
             </h3>
             <div className="space-y-2 text-sm">
               <p><strong>Trip ID:</strong> {booking.tripId}</p>
-              <p><strong>Seats:</strong> {booking.seatNumbers.join(', ')}</p>
+              <p><strong>{t('bookings.seats')}:</strong> {booking.seatNumbers.join(', ')}</p>
               <p><strong>Channel:</strong> {booking.channel}</p>
             </div>
           </div>
@@ -144,11 +146,11 @@ const BookingsView = () => {
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold mb-2 flex items-center gap-2">
-              <CreditCard className="w-4 h-4" /> Fare Breakdown
+              <CreditCard className="w-4 h-4" /> {t('bookings.fareBreakdown')}
             </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Base Fare:</span>
+                <span>{t('bookings.baseFare')}:</span>
                 <span>TZS {booking.fareBreakdown.baseFare.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
@@ -160,7 +162,7 @@ const BookingsView = () => {
                 <span>TZS {booking.fareBreakdown.transactionFee.toLocaleString()}</span>
               </div>
               <div className="border-t pt-2 flex justify-between font-semibold">
-                <span>Total Amount:</span>
+                <span>{t('bookings.totalFare')}:</span>
                 <span>TZS {booking.fareBreakdown.grossFare.toLocaleString()}</span>
               </div>
             </div>
@@ -171,8 +173,8 @@ const BookingsView = () => {
               <Calendar className="w-4 h-4" /> Timestamps
             </h3>
             <div className="space-y-2 text-sm">
-              <p><strong>Created:</strong> {booking.createdAt.toLocaleString()}</p>
-              <p><strong>Updated:</strong> {booking.updatedAt.toLocaleString()}</p>
+              <p><strong>{t('bookings.createdAt')}:</strong> {booking.createdAt.toLocaleString()}</p>
+              <p><strong>{t('bookings.updatedAt')}:</strong> {booking.updatedAt.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -180,7 +182,7 @@ const BookingsView = () => {
 
       <div className="mt-6 pt-6 border-t">
         <Button onClick={() => setSelectedBooking(null)} variant="outline">
-          Back to Bookings List
+          {t('bookings.backToList')}
         </Button>
       </div>
     </Card>
@@ -194,15 +196,15 @@ const BookingsView = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Bookings Management</h1>
-          <p className="text-muted-foreground mt-1">Manage and track all passenger bookings</p>
+          <h1 className="text-3xl font-bold">{t('bookings.managementTitle')}</h1>
+          <p className="text-muted-foreground mt-1">{t('bookings.managementSubtitle')}</p>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by PNR, name, or phone..."
+              placeholder={t('bookings.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 w-64"
@@ -216,11 +218,11 @@ const BookingsView = () => {
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="all">All ({bookingCounts.all})</TabsTrigger>
-          <TabsTrigger value="ticketed">Ticketed ({bookingCounts.ticketed})</TabsTrigger>
-          <TabsTrigger value="paid">Paid ({bookingCounts.paid})</TabsTrigger>
-          <TabsTrigger value="awaiting">Awaiting ({bookingCounts.awaiting})</TabsTrigger>
-          <TabsTrigger value="cancelled">Cancelled ({bookingCounts.cancelled})</TabsTrigger>
+          <TabsTrigger value="all">{t('bookings.all')} ({bookingCounts.all})</TabsTrigger>
+          <TabsTrigger value="ticketed">{t('bookings.ticketed')} ({bookingCounts.ticketed})</TabsTrigger>
+          <TabsTrigger value="paid">{t('bookings.paid')} ({bookingCounts.paid})</TabsTrigger>
+          <TabsTrigger value="awaiting">{t('bookings.awaiting')} ({bookingCounts.awaiting})</TabsTrigger>
+          <TabsTrigger value="cancelled">{t('bookings.cancelled')} ({bookingCounts.cancelled})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
