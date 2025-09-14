@@ -11,6 +11,7 @@ import SearchResults from "./pages/SearchResults";
 import SeatSelection from "./pages/SeatSelection";
 import BookingConfirm from "./pages/BookingConfirm";
 import NotFound from "./pages/NotFound";
+import SeatLockDemo from "./components/SeatLockDemo";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/search-results" element={<SearchResults />} />
             <Route path="/booking/seat-selection" element={<SeatSelection />} />
             <Route path="/booking/confirm" element={<BookingConfirm />} />
+            <Route path="/seat-lock-demo" element={<SeatLockDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
