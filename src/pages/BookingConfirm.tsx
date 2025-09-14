@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, BusIcon, TrainIcon, MapPin, Clock, CreditCard, Smartphone, Globe } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Layout from "@/components/Layout"
-import { currencyConverter, type CurrencyRate } from "@/services/currencyConverter"
+import { currencyConverter } from "@/services/currencyConverter"
 import { ticketService } from "@/services/ticketService"
 import { SeatLockService } from "@/services/seatLockService"
 
@@ -39,7 +39,15 @@ const BookingConfirm = () => {
 
   const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa')
   const [selectedCurrency, setSelectedCurrency] = useState('TZS')
-  const [availableCurrencies] = useState(currencyConverter.getAllCurrencies())
+  const [availableCurrencies, setAvailableCurrencies] = useState(currencyConverter.getAllCurrencies())
+
+  // Force refresh of currencies on component mount  
+  useEffect(() => {
+    const currencies = currencyConverter.getAllCurrencies()
+    setAvailableCurrencies(currencies)
+    // Ensure TZS is selected by default
+    setSelectedCurrency('TZS')
+  }, [])
 
   if (!booking) {
     navigate('/dashboard')
@@ -245,9 +253,9 @@ const BookingConfirm = () => {
                       <Globe className="w-4 h-4" />
                       <span>Display Currency</span>
                     </Label>
-                    <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
+                    <Select value={selectedCurrency} onValueChange={setSelectedCurrency} key="currency-select">
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select Currency" />
                       </SelectTrigger>
                       <SelectContent>
                         {availableCurrencies.map((currency) => (
