@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, BusIcon, TrainIcon, MapPin, Clock, CreditCard, Smartphone } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ArrowLeft, BusIcon, TrainIcon, MapPin, Clock, CreditCard, Smartphone, Globe } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Layout from "@/components/Layout"
+import { currencyConverter, type CurrencyRate } from "@/services/currencyConverter"
 
 interface BookingData {
   booking: any
@@ -31,6 +33,8 @@ const BookingConfirm = () => {
   })
 
   const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa')
+  const [selectedCurrency, setSelectedCurrency] = useState('TZS')
+  const [availableCurrencies] = useState(currencyConverter.getAllCurrencies())
 
   if (!booking) {
     navigate('/dashboard')
@@ -38,6 +42,13 @@ const BookingConfirm = () => {
   }
 
   const totalPrice = booking.price * searchParams.passengers
+  const serviceFee = 2000
+  const totalTZS = totalPrice + serviceFee
+  
+  // Convert prices for display
+  const convertedBasePrice = currencyConverter.convert(booking.price, selectedCurrency)
+  const convertedServiceFee = currencyConverter.convert(serviceFee, selectedCurrency)
+  const convertedTotal = currencyConverter.convert(totalTZS, selectedCurrency)
 
   const handleConfirmBooking = async () => {
     setIsProcessing(true)
@@ -197,6 +208,36 @@ const BookingConfirm = () => {
                       <span>Card</span>
                     </Button>
                   </div>
+                  
+                  <Separator />
+                  
+                  {/* Currency Selector */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center space-x-2">
+                      <Globe className="w-4 h-4" />
+                      <span>Display Currency</span>
+                    </Label>
+                    <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableCurrencies.map((currency) => (
+                          <SelectItem key={currency.code} value={currency.code}>
+                            <div className="flex items-center space-x-2">
+                              <span>{currency.symbol}</span>
+                              <span>{currency.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedCurrency !== 'TZS' && (
+                      <div className="text-xs text-muted-foreground">
+                        * Payment will be processed in TZS. Conversion is for display only.
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -211,11 +252,11 @@ const BookingConfirm = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>{booking.type} ticket × {searchParams.passengers}</span>
-                      <span>TZS {booking.price.toLocaleString()}</span>
+                      <span>{currencyConverter.formatAmount(convertedBasePrice * searchParams.passengers, selectedCurrency)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>Service fee</span>
-                      <span>TZS 2,000</span>
+                      <span>{currencyConverter.formatAmount(convertedServiceFee, selectedCurrency)}</span>
                     </div>
                   </div>
                   
@@ -223,8 +264,17 @@ const BookingConfirm = () => {
                   
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span>TZS {(totalPrice + 2000).toLocaleString()}</span>
+                    <span>{currencyConverter.formatAmount(convertedTotal, selectedCurrency)}</span>
                   </div>
+                  
+                  {selectedCurrency !== 'TZS' && (
+                    <div className="text-xs text-muted-foreground border-t pt-2">
+                      <div className="flex justify-between">
+                        <span>Actual charge (TZS):</span>
+                        <span>TZS {totalTZS.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
                   
                   <Button 
                     className="w-full h-12"
