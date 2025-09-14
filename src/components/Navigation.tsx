@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Home, Calendar, Settings } from 'lucide-react';
 
-const Navigation = () => {
-  const [activeTab, setActiveTab] = useState('home');
+interface NavigationProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
 
+const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
   const navigationItems = [
     {
       id: 'home',
@@ -37,7 +40,7 @@ const Navigation = () => {
                   ? 'text-primary font-semibold bg-brand-light'
                   : 'text-muted-foreground hover:bg-muted'
               }`}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => onTabChange(item.id)}
             >
               <IconComponent className="w-5 h-5" />
               <div className="text-sm">
