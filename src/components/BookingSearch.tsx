@@ -53,38 +53,46 @@ export const BookingSearch = ({ onSearch }: BookingSearchProps) => {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 bg-gradient-to-br from-primary to-brand-dark rounded-3xl shadow-lg">
+    <div className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl p-8 shadow-lg">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-2">Book Your Next Trip</h2>
-        <p className="text-blue-100">Search and book bus or train tickets conveniently</p>
       </div>
 
       <div className="space-y-6">
         {/* Transport Type Selector */}
-        <Tabs 
-          value={searchData.type} 
-          onValueChange={(value) => setSearchData(prev => ({ ...prev, type: value as 'bus' | 'train' }))}
-          className="w-full"
-        >
-          <TabsList className="grid w-fit grid-cols-2 bg-white/10 border-white/20">
-            <TabsTrigger value="bus" className="data-[state=active]:bg-white data-[state=active]:text-primary">
-              <BusIcon className="w-4 h-4 mr-2" />
-              Bus
-            </TabsTrigger>
-            <TabsTrigger value="train" className="data-[state=active]:bg-white data-[state=active]:text-primary">
-              <TrainIcon className="w-4 h-4 mr-2" />
-              Train
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex space-x-2">
+          <Button
+            onClick={() => setSearchData(prev => ({ ...prev, type: 'bus' }))}
+            className={cn(
+              "px-6 py-3 rounded-lg font-medium transition-colors",
+              searchData.type === 'bus'
+                ? "bg-white text-blue-600"
+                : "bg-white/20 text-white hover:bg-white/30"
+            )}
+          >
+            <BusIcon className="w-4 h-4 mr-2" />
+            Bus
+          </Button>
+          <Button
+            onClick={() => setSearchData(prev => ({ ...prev, type: 'train' }))}
+            className={cn(
+              "px-6 py-3 rounded-lg font-medium transition-colors",
+              searchData.type === 'train'
+                ? "bg-white text-blue-600"
+                : "bg-white/20 text-white hover:bg-white/30"
+            )}
+          >
+            <TrainIcon className="w-4 h-4 mr-2" />
+            Train
+          </Button>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* From Location */}
-          <div className="space-y-2">
-            <Label htmlFor="from" className="text-white font-medium">From</Label>
+          <div className="lg:col-span-1">
             <Select value={searchData.from} onValueChange={(value) => setSearchData(prev => ({ ...prev, from: value }))}>
-              <SelectTrigger className="bg-white border-white/20 h-12">
-                <SelectValue placeholder="Select departure city" />
+              <SelectTrigger className="bg-white border-0 h-12 text-gray-700">
+                <SelectValue placeholder="From" />
               </SelectTrigger>
               <SelectContent>
                 {cities.map((city) => (
@@ -92,27 +100,13 @@ export const BookingSearch = ({ onSearch }: BookingSearchProps) => {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Swap Button */}
-          <div className="hidden lg:flex items-end justify-center pb-3">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={swapLocations}
-              className="text-white hover:bg-white/10 rounded-full h-8 w-8"
-            >
-              <ArrowRightLeft className="h-4 w-4" />
-            </Button>
           </div>
 
           {/* To Location */}
-          <div className="space-y-2">
-            <Label htmlFor="to" className="text-white font-medium">To</Label>
+          <div className="lg:col-span-1">
             <Select value={searchData.to} onValueChange={(value) => setSearchData(prev => ({ ...prev, to: value }))}>
-              <SelectTrigger className="bg-white border-white/20 h-12">
-                <SelectValue placeholder="Select destination city" />
+              <SelectTrigger className="bg-white border-0 h-12 text-gray-700">
+                <SelectValue placeholder="To" />
               </SelectTrigger>
               <SelectContent>
                 {cities.map((city) => (
@@ -121,23 +115,17 @@ export const BookingSearch = ({ onSearch }: BookingSearchProps) => {
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Departure Date */}
-          <div className="space-y-2">
-            <Label className="text-white font-medium">Departure Date</Label>
+          <div className="lg:col-span-1">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className={cn(
-                    "w-full h-12 justify-start text-left font-normal bg-white border-white/20",
-                    !searchData.departureDate && "text-muted-foreground"
-                  )}
+                  className="w-full h-12 justify-start text-left font-normal bg-white border-0 text-gray-700"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {searchData.departureDate ? format(searchData.departureDate, "MMM dd, yyyy") : <span>Pick a date</span>}
+                  {searchData.departureDate ? format(searchData.departureDate, "MM/dd/yyyy") : <span>mm/dd/yyyy</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -146,26 +134,21 @@ export const BookingSearch = ({ onSearch }: BookingSearchProps) => {
                   selected={searchData.departureDate}
                   onSelect={(date) => setSearchData(prev => ({ ...prev, departureDate: date }))}
                   initialFocus
-                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
           {/* Return Date */}
-          <div className="space-y-2">
-            <Label className="text-white font-medium">Return Date (Optional)</Label>
+          <div className="lg:col-span-1">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className={cn(
-                    "w-full h-12 justify-start text-left font-normal bg-white border-white/20",
-                    !searchData.returnDate && "text-muted-foreground"
-                  )}
+                  className="w-full h-12 justify-start text-left font-normal bg-white border-0 text-gray-700"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {searchData.returnDate ? format(searchData.returnDate, "MMM dd, yyyy") : <span>Return date</span>}
+                  {searchData.returnDate ? format(searchData.returnDate, "MM/dd/yyyy") : <span>mm/dd/yyyy</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -174,40 +157,21 @@ export const BookingSearch = ({ onSearch }: BookingSearchProps) => {
                   selected={searchData.returnDate}
                   onSelect={(date) => setSearchData(prev => ({ ...prev, returnDate: date }))}
                   initialFocus
-                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
-          {/* Passengers */}
-          <div className="space-y-2">
-            <Label htmlFor="passengers" className="text-white font-medium">Passengers</Label>
-            <Select 
-              value={searchData.passengers.toString()} 
-              onValueChange={(value) => setSearchData(prev => ({ ...prev, passengers: parseInt(value) }))}
+          {/* Search Button */}
+          <div className="lg:col-span-1">
+            <Button 
+              onClick={handleSearch}
+              className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg"
+              disabled={!searchData.from || !searchData.to || !searchData.departureDate}
             >
-              <SelectTrigger className="bg-white border-white/20 h-12">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1,2,3,4,5,6,7,8].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>{num} {num === 1 ? 'Passenger' : 'Passengers'}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              Search
+            </Button>
           </div>
-        </div>
-
-        {/* Search Button */}
-        <div className="flex justify-center pt-4">
-          <Button 
-            onClick={handleSearch}
-            className="w-full md:w-auto px-8 py-3 h-12 bg-white text-primary hover:bg-gray-50 font-semibold text-lg"
-            disabled={!searchData.from || !searchData.to || !searchData.departureDate}
-          >
-            Search {searchData.type === 'bus' ? 'Buses' : 'Trains'}
-          </Button>
         </div>
       </div>
     </div>
