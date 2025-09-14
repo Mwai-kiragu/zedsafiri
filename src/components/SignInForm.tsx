@@ -11,17 +11,23 @@ interface SignInFormData {
   phoneNumber?: string
   email?: string
   password: string
+  dialCode?: string
 }
 
 export const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [loginMethod, setLoginMethod] = useState<"mobile" | "email">("mobile")
+  const [dialCode, setDialCode] = useState("+255")
   const navigate = useNavigate()
   
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>()
 
   const onSubmit = (data: SignInFormData) => {
-    console.log("Sign in data:", data)
+    const submitData = {
+      ...data,
+      phoneNumber: loginMethod === "mobile" && data.phoneNumber ? `${dialCode}${data.phoneNumber}` : data.phoneNumber
+    }
+    console.log("Sign in data:", submitData)
     // Navigate to dashboard after successful login
     navigate('/dashboard')
   }
@@ -82,11 +88,18 @@ export const SignInForm = () => {
               <div className="flex flex-col items-start gap-2 w-full bg-white">
                 <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
                   <div className="flex items-center gap-4 flex-[1_0_0]">
-                    <div className="flex flex-col justify-center items-center gap-2.5 bg-[#E8E9F1] px-2.5 py-[5px] rounded-md">
-                      <span className="text-[#1F2024] text-sm font-normal leading-5">
-                        +255
-                      </span>
-                    </div>
+                    <select
+                      value={dialCode}
+                      onChange={(e) => setDialCode(e.target.value)}
+                      className="bg-[#E8E9F1] px-2.5 py-[5px] rounded-md text-[#1F2024] text-sm font-normal leading-5 border-0 focus:outline-none"
+                    >
+                      <option value="+211">🇸🇸 +211</option>
+                      <option value="+255">🇹🇿 +255</option>
+                      <option value="+254">🇰🇪 +254</option>
+                      <option value="+250">🇷🇼 +250</option>
+                      <option value="+257">🇧🇮 +257</option>
+                      <option value="+256">🇺🇬 +256</option>
+                    </select>
                     <Input
                       {...register("phoneNumber", { 
                         required: loginMethod === "mobile" ? "Phone number is required" : false 
