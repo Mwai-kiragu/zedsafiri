@@ -29,16 +29,16 @@ interface SearchResultsProps {
   }
 }
 
-// Mock data for demonstration
+// Mock data for demonstration - Tanzanian operators and routes
 const mockResults: SearchResult[] = [
   {
     id: '1',
     type: 'bus',
-    operator: 'Nairobi Shuttle',
+    operator: 'Kilimanjaro Express',
     departureTime: '06:00',
-    arrivalTime: '10:30',
-    duration: '4h 30m',
-    price: 1200,
+    arrivalTime: '12:30',
+    duration: '6h 30m',
+    price: 32000,
     seatsAvailable: 8,
     amenities: ['wifi', 'ac', 'charging'],
     rating: 4.5
@@ -46,11 +46,11 @@ const mockResults: SearchResult[] = [
   {
     id: '2',
     type: 'bus',
-    operator: 'Modern Coast',
+    operator: 'Scandinavian Express',
     departureTime: '08:15',
-    arrivalTime: '12:45',
-    duration: '4h 30m',
-    price: 1500,
+    arrivalTime: '14:45',
+    duration: '6h 30m',
+    price: 35000,
     seatsAvailable: 5,
     amenities: ['wifi', 'ac', 'entertainment', 'snacks'],
     rating: 4.8
@@ -58,14 +58,38 @@ const mockResults: SearchResult[] = [
   {
     id: '3',
     type: 'train',
-    operator: 'Kenya Railways',
+    operator: 'Tanzania Railways Corporation (TRC)',
     departureTime: '07:00',
-    arrivalTime: '11:00',
-    duration: '4h 00m',
-    price: 800,
+    arrivalTime: '15:00',
+    duration: '8h 00m',
+    price: 25000,
     seatsAvailable: 12,
     amenities: ['wifi', 'dining'],
     rating: 4.2
+  },
+  {
+    id: '4',
+    type: 'bus',
+    operator: 'Fresh Ya Shamba',
+    departureTime: '14:00',
+    arrivalTime: '20:30',
+    duration: '6h 30m',
+    price: 30000,
+    seatsAvailable: 3,
+    amenities: ['ac', 'charging'],
+    rating: 4.3
+  },
+  {
+    id: '5',
+    type: 'train',
+    operator: 'Standard Gauge Railway (SGR)',
+    departureTime: '09:30',
+    arrivalTime: '16:30',
+    duration: '7h 00m',
+    price: 40000,
+    seatsAvailable: 18,
+    amenities: ['wifi', 'entertainment', 'dining', 'ac'],
+    rating: 4.7
   }
 ]
 
@@ -146,7 +170,7 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-primary">
-                    KSh {result.price.toLocaleString()}
+                    TZS {result.price.toLocaleString()}
                   </div>
                   <div className="text-sm text-muted-foreground">per person</div>
                 </div>

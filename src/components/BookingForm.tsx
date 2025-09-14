@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarIcon, Bus, Train } from 'lucide-react';
 import { getAllCities } from '@/data/tanzanianRoutes';
+import { toast } from 'sonner';
 
 // BookingForm component with mock data and city dropdowns
 const BookingForm = () => {
@@ -12,17 +14,42 @@ const BookingForm = () => {
   const [toLocation, setToLocation] = useState('');
   const [travelDate, setTravelDate] = useState('2025-01-20');
   const [returnDate, setReturnDate] = useState('');
-
+  
+  const navigate = useNavigate();
   const cities = getAllCities();
 
   const handleSearch = () => {
-    console.log('Searching for trips...', {
-      transportType,
-      fromLocation,
-      toLocation,
-      travelDate,
-      returnDate
+    // Validate form inputs
+    if (!fromLocation || !toLocation) {
+      toast.error('Please select both origin and destination cities');
+      return;
+    }
+    
+    if (!travelDate) {
+      toast.error('Please select a travel date');
+      return;
+    }
+    
+    if (fromLocation === toLocation) {
+      toast.error('Origin and destination cannot be the same');
+      return;
+    }
+
+    // Navigate to search results with query parameters
+    const searchParams = new URLSearchParams({
+      from: fromLocation,
+      to: toLocation,
+      date: travelDate,
+      type: transportType,
+      passengers: '1'
     });
+    
+    if (returnDate) {
+      searchParams.append('returnDate', returnDate);
+    }
+    
+    navigate(`/search-results?${searchParams.toString()}`);
+    toast.success(`Searching for ${transportType} trips from ${fromLocation} to ${toLocation}`);
   };
 
   return (
