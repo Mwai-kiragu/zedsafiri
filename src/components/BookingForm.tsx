@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CalendarIcon, ChevronDown, Bus, Train } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CalendarIcon, Bus, Train } from 'lucide-react';
+import { getAllCities } from '@/data/tanzanianRoutes';
 
 const BookingForm = () => {
   const [transportType, setTransportType] = useState('bus');
   const [fromLocation, setFromLocation] = useState('');
   const [toLocation, setToLocation] = useState('');
-  const [travelDate, setTravelDate] = useState('');
+  const [travelDate, setTravelDate] = useState('2025-01-20');
   const [returnDate, setReturnDate] = useState('');
+
+  const cities = getAllCities();
 
   const handleSearch = () => {
     console.log('Searching for trips...', {
@@ -56,29 +60,33 @@ const BookingForm = () => {
             </div>
             
             <div className="flex-1 min-w-60">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="From"
-                  value={fromLocation}
-                  onChange={(e) => setFromLocation(e.target.value)}
-                  className="pr-10"
-                />
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              </div>
+              <Select value={fromLocation} onValueChange={setFromLocation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="From - Select origin city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((city) => (
+                    <SelectItem key={city.id} value={city.name}>
+                      {city.name}, {city.region}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="flex-1 min-w-60">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="To"
-                  value={toLocation}
-                  onChange={(e) => setToLocation(e.target.value)}
-                  className="pr-10"
-                />
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              </div>
+              <Select value={toLocation} onValueChange={setToLocation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="To - Select destination city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((city) => (
+                    <SelectItem key={city.id} value={city.name}>
+                      {city.name}, {city.region}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
