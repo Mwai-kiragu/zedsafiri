@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Home, Calendar, Settings } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavigationProps {
   activeTab: string;
@@ -7,20 +8,22 @@ interface NavigationProps {
 }
 
 const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
+  const { t } = useLanguage();
+  
   const navigationItems = [
     {
       id: 'home',
-      name: 'Home',
+      name: t('nav.home'),
       icon: Home
     },
     {
       id: 'bookings',
-      name: 'Bookings',
+      name: t('nav.bookings'),
       icon: Calendar
     },
     {
       id: 'settings',
-      name: 'Settings',
+      name: t('nav.settings'),
       icon: Settings
     }
   ];

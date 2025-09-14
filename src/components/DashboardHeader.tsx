@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Globe, Bell, ChevronDown, User, LogOut, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,19 +9,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
-  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const { currentLanguage, setLanguage, t } = useLanguage();
 
   const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'sw', name: 'Kiswahili' }
+    { code: 'en', name: 'English', displayName: t('header.english') },
+    { code: 'sw', name: 'Kiswahili', displayName: t('header.swahili') }
   ];
 
+  const getCurrentLanguageDisplay = () => {
+    return languages.find(lang => lang.code === currentLanguage)?.displayName || 'English';
+  };
+
   const handleLanguageChange = (language: string) => {
-    setSelectedLanguage(language);
-    // Here you would typically handle language change logic
+    setLanguage(language);
   };
 
   const handleProfileClick = () => {
@@ -47,7 +51,7 @@ const DashboardHeader = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-2">
               <Globe className="w-3 h-3" />
-              {selectedLanguage}
+              {getCurrentLanguageDisplay()}
               <ChevronDown className="w-3 h-3" />
             </Button>
           </DropdownMenuTrigger>
@@ -59,8 +63,8 @@ const DashboardHeader = () => {
                 onClick={() => handleLanguageChange(language.name)}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span>{language.name}</span>
-                  {selectedLanguage === language.name && (
+                  <span>{language.displayName}</span>
+                  {currentLanguage === language.code && (
                     <Check className="w-4 h-4" />
                   )}
                 </div>
@@ -86,7 +90,7 @@ const DashboardHeader = () => {
                   Alex Kamau
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Passenger
+                  {t('header.passenger')}
                 </div>
               </div>
               <ChevronDown className="w-3 h-3 text-muted-foreground" />
@@ -95,12 +99,12 @@ const DashboardHeader = () => {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem className="cursor-pointer" onClick={handleProfileClick}>
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <span>{t('header.profile')}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={handleLogoutClick}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
+              <span>{t('header.logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

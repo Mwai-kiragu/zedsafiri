@@ -7,9 +7,11 @@ import BookingForm from '@/components/BookingForm';
 import RecentBookings from '@/components/RecentBookings';
 import BookingSimulation from '@/components/BookingSimulation';
 import BookingsView from '@/components/BookingsView';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
+  const { t } = useLanguage();
 
   const renderMainContent = () => {
     switch (activeTab) {
@@ -18,8 +20,8 @@ const Dashboard = () => {
       case 'settings':
         return (
           <div className="p-6">
-            <h1 className="text-3xl font-bold mb-4">Settings</h1>
-            <p className="text-muted-foreground">Settings functionality coming soon...</p>
+            <h1 className="text-3xl font-bold mb-4">{t('settings.title')}</h1>
+            <p className="text-muted-foreground">{t('settings.subtitle')}</p>
           </div>
         );
       default:
