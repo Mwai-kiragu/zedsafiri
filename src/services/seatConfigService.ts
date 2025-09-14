@@ -164,7 +164,12 @@ export class SeatConfigService {
   }
   
   static getLayoutForTrip(trip: Trip): VehicleLayout {
-    const layoutKey = `${trip.class.toLowerCase()}_${trip.operatorId.includes('train') ? 'train' : 'bus'}_standard`;
+    // Add safety checks for undefined properties
+    const tripClass = trip?.class || 'Economy';
+    const operatorId = trip?.operatorId || '';
+    const transportType = operatorId.includes('train') ? 'train' : 'bus';
+    
+    const layoutKey = `${tripClass.toLowerCase()}_${transportType}_standard`;
     const layout = this.layouts.get(layoutKey) || this.layouts.get('economy_bus_standard')!;
     
     // Clone and mark some seats as occupied for testing
