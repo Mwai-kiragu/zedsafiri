@@ -40,6 +40,8 @@ const BookingConfirm = () => {
   const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa')
   const [selectedCurrency, setSelectedCurrency] = useState('TZS')
   const [availableCurrencies, setAvailableCurrencies] = useState(currencyConverter.getAllCurrencies())
+  const [exchangeRate, setExchangeRate] = useState(1)
+  const [isLoadingRate, setIsLoadingRate] = useState(false)
 
   // Force refresh of currencies on component mount  
   useEffect(() => {
@@ -48,6 +50,53 @@ const BookingConfirm = () => {
     // Ensure TZS is selected by default
     setSelectedCurrency('TZS')
   }, [])
+
+  // Fetch live exchange rates when currency changes
+  useEffect(() => {
+    if (selectedCurrency === 'TZS') {
+      setExchangeRate(1)
+      return
+    }
+
+    // Check cache first (cache for 5 minutes)
+    const cacheKey = `exchange_rate_TZS_${selectedCurrency}`
+    const cached = localStorage.getItem(cacheKey)
+    if (cached) {
+      const { rate, timestamp } = JSON.parse(cached)
+      const fiveMinutesAgo = Date.now() - (5 * 60 * 1000)
+      if (timestamp > fiveMinutesAgo) {
+        setExchangeRate(rate)
+        return
+      }
+    }
+
+    setIsLoadingRate(true)
+    fetch(`https://api.exchangerate.host/convert?from=TZS&to=${selectedCurrency}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.result) {
+          const rate = data.result
+          setExchangeRate(rate)
+          // Cache the rate
+          localStorage.setItem(cacheKey, JSON.stringify({
+            rate,
+            timestamp: Date.now()
+          }))
+        } else {
+          // Fallback to static rates if API fails
+          const fallbackRate = currencyConverter.convert(1, selectedCurrency)
+          setExchangeRate(fallbackRate)
+        }
+      })
+      .catch(() => {
+        // Fallback to static rates if API fails
+        const fallbackRate = currencyConverter.convert(1, selectedCurrency)
+        setExchangeRate(fallbackRate)
+      })
+      .finally(() => {
+        setIsLoadingRate(false)
+      })
+  }, [selectedCurrency])
 
   if (!booking) {
     navigate('/dashboard')
@@ -58,10 +107,24 @@ const BookingConfirm = () => {
   const serviceFee = 2000
   const totalTZS = totalPrice + serviceFee
   
-  // Convert prices for display
-  const convertedBasePrice = currencyConverter.convert(booking.price, selectedCurrency)
-  const convertedServiceFee = currencyConverter.convert(serviceFee, selectedCurrency)
-  const convertedTotal = currencyConverter.convert(totalTZS, selectedCurrency)
+  // Convert prices for display using live exchange rates
+  const convertedBasePrice = booking.price * exchangeRate
+  const convertedServiceFee = serviceFee * exchangeRate
+  const convertedTotal = totalTZS * exchangeRate
+
+  // Format amounts with proper currency symbols
+  const formatAmount = (amount: number) => {
+    const currencyInfo = availableCurrencies.find(c => c.code === selectedCurrency)
+    if (!currencyInfo) return amount.toString()
+
+    const rounded = Math.round(amount * 100) / 100
+    
+    if (selectedCurrency === 'TZS' || selectedCurrency === 'UGX' || selectedCurrency === 'RWF' || selectedCurrency === 'BIF') {
+      return `${currencyInfo.symbol} ${rounded.toLocaleString()}`
+    }
+    
+    return `${currencyInfo.symbol}${rounded.toFixed(2)}`
+  }
 
   const handleConfirmBooking = async () => {
     setIsProcessing(true)
@@ -270,7 +333,18 @@ const BookingConfirm = () => {
                     </Select>
                     {selectedCurrency !== 'TZS' && (
                       <div className="text-xs text-muted-foreground">
-                        * Payment will be processed in TZS. Conversion is for display only.
+                        {isLoadingRate ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin" />
+                            <span>Fetching live exchange rate...</span>
+                          </div>
+                        ) : (
+                          <div>
+                            * Payment will be processed in TZS. Conversion is for display only.
+                            <br />
+                            Live rate: 1 TZS = {exchangeRate.toFixed(4)} {selectedCurrency}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -288,14 +362,17 @@ const BookingConfirm = () => {
                    <div className="space-y-2">
                      <div className="flex justify-between">
                        <span>{booking.type} ticket × {selectedSeats.length}</span>
-                       <span>{currencyConverter.formatAmount(convertedBasePrice * selectedSeats.length, selectedCurrency)}</span>
+                       <span className="flex items-center space-x-1">
+                         {isLoadingRate && <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin" />}
+                         <span>{formatAmount(convertedBasePrice * selectedSeats.length)}</span>
+                       </span>
                      </div>
                      <div className="text-xs text-muted-foreground">
                        Seats: {selectedSeats.join(', ')}
                      </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>Service fee</span>
-                      <span>{currencyConverter.formatAmount(convertedServiceFee, selectedCurrency)}</span>
+                      <span>{formatAmount(convertedServiceFee)}</span>
                     </div>
                   </div>
                   
@@ -303,7 +380,10 @@ const BookingConfirm = () => {
                   
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span>{currencyConverter.formatAmount(convertedTotal, selectedCurrency)}</span>
+                    <span className="flex items-center space-x-1">
+                      {isLoadingRate && <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin" />}
+                      <span>{formatAmount(convertedTotal)}</span>
+                    </span>
                   </div>
                   
                   {selectedCurrency !== 'TZS' && (
