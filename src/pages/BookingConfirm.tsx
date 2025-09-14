@@ -42,6 +42,31 @@ const BookingConfirm = () => {
   const [availableCurrencies, setAvailableCurrencies] = useState(currencyConverter.getAllCurrencies())
   const [exchangeRate, setExchangeRate] = useState(1)
   const [isLoadingRate, setIsLoadingRate] = useState(false)
+  const [countdown, setCountdown] = useState<number>(0)
+
+  // Monitor seat lock expiration during payment
+  useEffect(() => {
+    if (!lockId) return
+
+    const timer = setInterval(() => {
+      const remaining = SeatLockService.getLockCountdown(lockId)
+      setCountdown(remaining)
+      
+      if (remaining <= 0) {
+        // Lock has expired - redirect back to seat selection with error
+        toast({
+          title: "Seat Hold Expired",
+          description: "Your seat hold has expired. Please re-select seats.",
+          variant: "destructive"
+        })
+        navigate('/seat-selection', {
+          state: { booking, searchParams }
+        })
+      }
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [lockId, booking, searchParams, navigate, toast])
 
   // Force refresh of currencies on component mount  
   useEffect(() => {
@@ -223,15 +248,23 @@ const BookingConfirm = () => {
                     </div>
                   </div>
                   
-                   <div className="flex items-center space-x-4 text-sm">
-                     <div className="flex items-center">
-                       <Clock className="w-4 h-4 mr-1 text-muted-foreground" />
-                       {booking.duration}
-                     </div>
-                     <div>
-                       {selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''}: {selectedSeats.join(', ')}
-                     </div>
-                   </div>
+                    <div className="flex items-center space-x-4 text-sm">
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1 text-muted-foreground" />
+                        {booking.duration}
+                      </div>
+                      <div>
+                        {selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''}: {selectedSeats.join(', ')}
+                      </div>
+                      {lockId && countdown > 0 && (
+                        <div className="flex items-center text-orange-600">
+                          <Clock className="w-3 h-3 mr-1" />
+                          <span className="text-xs">
+                            {Math.floor(countdown / 60000)}:{String(Math.floor((countdown % 60000) / 1000)).padStart(2, '0')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                 </CardContent>
               </Card>
 
