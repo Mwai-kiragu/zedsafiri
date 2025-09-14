@@ -17,7 +17,9 @@ const BookingSimulation = () => {
   const [seatMap, setSeatMap] = useState<Map<string, SeatStatus>>(new Map());
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [lockCountdown, setLockCountdown] = useState<number>(0);
-  const [selectedRoute, setSelectedRoute] = useState<RouteInfo>(POPULAR_ROUTES[0]);
+  const [transportType, setTransportType] = useState<'bus' | 'train'>('bus');
+  const [filteredRoutes, setFilteredRoutes] = useState<RouteInfo[]>(POPULAR_ROUTES.filter(r => r.transportType === 'bus'));
+  const [selectedRoute, setSelectedRoute] = useState<RouteInfo>(POPULAR_ROUTES.filter(r => r.transportType === 'bus')[0]);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [availableTrips, setAvailableTrips] = useState<Trip[]>([]);
   const [travelDate, setTravelDate] = useState('2025-03-15');
@@ -28,6 +30,15 @@ const BookingSimulation = () => {
   });
 
   const cities = getAllCities();
+
+  useEffect(() => {
+    // Filter routes by transport type
+    const routes = POPULAR_ROUTES.filter(r => r.transportType === transportType);
+    setFilteredRoutes(routes);
+    if (routes.length > 0) {
+      setSelectedRoute(routes[0]);
+    }
+  }, [transportType]);
 
   useEffect(() => {
     // Generate trips for selected route
@@ -204,19 +215,47 @@ const BookingSimulation = () => {
 
         <TabsContent value="booking" className="space-y-4">
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Route Selection</h2>
+            <h2 className="text-xl font-semibold mb-4">Transport & Route Selection</h2>
+            
+            <div className="flex items-center bg-muted rounded-xl p-1.5 w-fit mb-4">
+              <button
+                type="button"
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                  transportType === 'bus'
+                    ? 'text-white bg-primary'
+                    : 'text-foreground hover:bg-muted-foreground/10'
+                }`}
+                onClick={() => setTransportType('bus')}
+              >
+                <span className="text-lg">🚌</span>
+                <span>Bus</span>
+              </button>
+              <button
+                type="button"
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                  transportType === 'train'
+                    ? 'text-white bg-primary'
+                    : 'text-foreground hover:bg-muted-foreground/10'
+                }`}
+                onClick={() => setTransportType('train')}
+              >
+                <span className="text-lg">🚂</span>
+                <span>Train</span>
+              </button>
+            </div>
+            
             <div className="grid grid-cols-3 gap-4 mb-4">
               <Select value={selectedRoute.id} onValueChange={(value) => {
-                const route = POPULAR_ROUTES.find(r => r.id === value);
+                const route = filteredRoutes.find(r => r.id === value);
                 if (route) setSelectedRoute(route);
               }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {POPULAR_ROUTES.map((route) => (
+                  {filteredRoutes.map((route) => (
                     <SelectItem key={route.id} value={route.id}>
-                      {route.origin.name} → {route.destination.name}
+                      {route.transportType === 'train' ? '🚂' : '🚌'} {route.origin.name} → {route.destination.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

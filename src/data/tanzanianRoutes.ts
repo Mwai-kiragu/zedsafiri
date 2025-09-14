@@ -39,10 +39,11 @@ export interface RouteInfo {
   durationHours: number;
   baseFare: number;
   popular: boolean;
+  transportType: 'bus' | 'train';
 }
 
 export const POPULAR_ROUTES: RouteInfo[] = [
-  // Major intercity routes
+  // Major bus routes
   {
     id: 'dar_dodoma',
     origin: TANZANIAN_CITIES.find(c => c.id === 'dar')!,
@@ -50,7 +51,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 460,
     durationHours: 6,
     baseFare: 18000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'dar_mwanza',
@@ -59,7 +61,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 1142,
     durationHours: 14,
     baseFare: 35000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'dar_arusha',
@@ -68,7 +71,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 635,
     durationHours: 8,
     baseFare: 25000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'dar_mbeya',
@@ -77,7 +81,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 835,
     durationHours: 12,
     baseFare: 32000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'dar_morogoro',
@@ -86,7 +91,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 196,
     durationHours: 3,
     baseFare: 8000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'dar_tanga',
@@ -95,7 +101,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 352,
     durationHours: 5,
     baseFare: 15000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'arusha_mwanza',
@@ -104,7 +111,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 380,
     durationHours: 6,
     baseFare: 20000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'dodoma_mwanza',
@@ -113,7 +121,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 441,
     durationHours: 7,
     baseFare: 22000,
-    popular: true
+    popular: true,
+    transportType: 'bus'
   },
   {
     id: 'mbeya_iringa',
@@ -122,7 +131,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 285,
     durationHours: 4,
     baseFare: 12000,
-    popular: false
+    popular: false,
+    transportType: 'bus'
   },
   {
     id: 'tabora_kigoma',
@@ -131,7 +141,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 374,
     durationHours: 6,
     baseFare: 18000,
-    popular: false
+    popular: false,
+    transportType: 'bus'
   },
   {
     id: 'mwanza_bukoba',
@@ -140,7 +151,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 290,
     durationHours: 5,
     baseFare: 15000,
-    popular: false
+    popular: false,
+    transportType: 'bus'
   },
   {
     id: 'mtwara_lindi',
@@ -149,7 +161,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 152,
     durationHours: 3,
     baseFare: 7000,
-    popular: false
+    popular: false,
+    transportType: 'bus'
   },
   {
     id: 'iringa_njombe',
@@ -158,7 +171,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 180,
     durationHours: 3,
     baseFare: 9000,
-    popular: false
+    popular: false,
+    transportType: 'bus'
   },
   {
     id: 'singida_tabora',
@@ -167,7 +181,8 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 206,
     durationHours: 4,
     baseFare: 10000,
-    popular: false
+    popular: false,
+    transportType: 'bus'
   },
   {
     id: 'songea_mbeya',
@@ -176,7 +191,69 @@ export const POPULAR_ROUTES: RouteInfo[] = [
     distanceKm: 387,
     durationHours: 6,
     baseFare: 18000,
-    popular: false
+    popular: false,
+    transportType: 'bus'
+  },
+  // Train routes (TAZARA and TRC lines)
+  {
+    id: 'train_dar_dodoma',
+    origin: TANZANIAN_CITIES.find(c => c.id === 'dar')!,
+    destination: TANZANIAN_CITIES.find(c => c.id === 'dodoma')!,
+    distanceKm: 453,
+    durationHours: 8,
+    baseFare: 22000,
+    popular: true,
+    transportType: 'train'
+  },
+  {
+    id: 'train_dar_mwanza',
+    origin: TANZANIAN_CITIES.find(c => c.id === 'dar')!,
+    destination: TANZANIAN_CITIES.find(c => c.id === 'mwanza')!,
+    distanceKm: 1206,
+    durationHours: 18,
+    baseFare: 45000,
+    popular: true,
+    transportType: 'train'
+  },
+  {
+    id: 'train_dar_kigoma',
+    origin: TANZANIAN_CITIES.find(c => c.id === 'dar')!,
+    destination: TANZANIAN_CITIES.find(c => c.id === 'kigoma')!,
+    distanceKm: 1253,
+    durationHours: 20,
+    baseFare: 48000,
+    popular: true,
+    transportType: 'train'
+  },
+  {
+    id: 'train_dar_mbeya',
+    origin: TANZANIAN_CITIES.find(c => c.id === 'dar')!,
+    destination: TANZANIAN_CITIES.find(c => c.id === 'mbeya')!,
+    distanceKm: 965,
+    durationHours: 16,
+    baseFare: 38000,
+    popular: true,
+    transportType: 'train'
+  },
+  {
+    id: 'train_dodoma_mwanza',
+    origin: TANZANIAN_CITIES.find(c => c.id === 'dodoma')!,
+    destination: TANZANIAN_CITIES.find(c => c.id === 'mwanza')!,
+    distanceKm: 753,
+    durationHours: 12,
+    baseFare: 28000,
+    popular: false,
+    transportType: 'train'
+  },
+  {
+    id: 'train_tabora_mwanza',
+    origin: TANZANIAN_CITIES.find(c => c.id === 'tabora')!,
+    destination: TANZANIAN_CITIES.find(c => c.id === 'mwanza')!,
+    distanceKm: 438,
+    durationHours: 8,
+    baseFare: 20000,
+    popular: false,
+    transportType: 'train'
   }
 ];
 
@@ -186,52 +263,88 @@ export const BUS_OPERATORS = [
     name: 'Kilimanjaro Express',
     rating: 4.5,
     amenities: ['AC', 'WiFi', 'Entertainment', 'Refreshments'],
-    classes: ['Economy', 'Business']
+    classes: ['Economy', 'Business'],
+    transportType: 'bus'
   },
   {
     id: 'dar_express',
     name: 'Dar Express',
     rating: 4.2,
     amenities: ['AC', 'Entertainment', 'Refreshments'],
-    classes: ['Economy', 'Royal']
+    classes: ['Economy', 'Royal'],
+    transportType: 'bus'
   },
   {
     id: 'scandinavian_express',
     name: 'Scandinavian Express',
     rating: 4.7,
     amenities: ['AC', 'WiFi', 'Entertainment', 'Refreshments', 'Charging'],
-    classes: ['Economy', 'Business', 'Royal']
+    classes: ['Economy', 'Business', 'Royal'],
+    transportType: 'bus'
   },
   {
     id: 'hood_bus',
     name: 'Hood Bus',
     rating: 4.0,
     amenities: ['AC', 'Entertainment'],
-    classes: ['Economy']
+    classes: ['Economy'],
+    transportType: 'bus'
   },
   {
     id: 'riverside_shuttle',
     name: 'Riverside Shuttle',
     rating: 3.8,
     amenities: ['AC', 'Refreshments'],
-    classes: ['Economy', 'Business']
+    classes: ['Economy', 'Business'],
+    transportType: 'bus'
   },
   {
     id: 'royal_coach',
     name: 'Royal Coach',
     rating: 4.6,
     amenities: ['AC', 'WiFi', 'Entertainment', 'Refreshments', 'Reclining Seats'],
-    classes: ['Business', 'Royal']
+    classes: ['Business', 'Royal'],
+    transportType: 'bus'
+  }
+];
+
+export const TRAIN_OPERATORS = [
+  {
+    id: 'trc_express',
+    name: 'TRC Express',
+    rating: 4.1,
+    amenities: ['Dining Car', 'Sleeping Berths', 'Luggage Storage'],
+    classes: ['Economy', 'Business'],
+    transportType: 'train'
+  },
+  {
+    id: 'tazara_railway',
+    name: 'TAZARA Railway',
+    rating: 3.9,
+    amenities: ['Dining Car', 'Sleeping Berths', 'AC'],
+    classes: ['Economy', 'Business', 'Royal'],
+    transportType: 'train'
+  },
+  {
+    id: 'central_line',
+    name: 'Central Railway',
+    rating: 3.7,
+    amenities: ['Dining Car', 'Luggage Storage'],
+    classes: ['Economy', 'Business'],
+    transportType: 'train'
   }
 ];
 
 export function generateTripsForRoute(route: RouteInfo, date: string): Trip[] {
   const trips: Trip[] = [];
-  const departureTimes = ['06:00', '08:30', '11:00', '14:00', '17:30', '20:00'];
+  const operators = route.transportType === 'bus' ? BUS_OPERATORS : TRAIN_OPERATORS;
+  const departureTimes = route.transportType === 'bus' 
+    ? ['06:00', '08:30', '11:00', '14:00', '17:30', '20:00']
+    : ['07:00', '15:00', '22:00']; // Trains have fewer departures
   
   departureTimes.forEach((departureTime, index) => {
     // Not all operators run all times
-    const availableOperators = BUS_OPERATORS.filter(() => Math.random() > 0.3);
+    const availableOperators = operators.filter(() => Math.random() > 0.3);
     
     availableOperators.forEach(operator => {
       operator.classes.forEach(className => {
@@ -266,15 +379,21 @@ export function generateTripsForRoute(route: RouteInfo, date: string): Trip[] {
 }
 
 export function getOperatorInfo(operatorId: string) {
-  return BUS_OPERATORS.find(op => op.id === operatorId);
+  return [...BUS_OPERATORS, ...TRAIN_OPERATORS].find(op => op.id === operatorId);
 }
 
-export function searchRoutes(origin?: string, destination?: string): RouteInfo[] {
-  if (!origin && !destination) {
-    return POPULAR_ROUTES;
+export function searchRoutes(origin?: string, destination?: string, transportType?: 'bus' | 'train'): RouteInfo[] {
+  let routes = POPULAR_ROUTES;
+  
+  if (transportType) {
+    routes = routes.filter(route => route.transportType === transportType);
   }
   
-  return POPULAR_ROUTES.filter(route => {
+  if (!origin && !destination) {
+    return routes;
+  }
+  
+  return routes.filter(route => {
     const matchesOrigin = !origin || route.origin.name.toLowerCase().includes(origin.toLowerCase()) || route.origin.region.toLowerCase().includes(origin.toLowerCase());
     const matchesDestination = !destination || route.destination.name.toLowerCase().includes(destination.toLowerCase()) || route.destination.region.toLowerCase().includes(destination.toLowerCase());
     return matchesOrigin && matchesDestination;
