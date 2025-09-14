@@ -23,6 +23,18 @@ All colors MUST be HSL.
     --brand: 217 100% 51%;
     --brand-dark: 217 100% 31%;
     --brand-light: 210 100% 97%;
+    
+    --success: 150 67% 56%;
+    --success-foreground: 0 0% 100%;
+    --success-bg: 148 40% 93%;
+    
+    --warning: 43 96% 56%;
+    --warning-foreground: 0 0% 100%;
+    --warning-bg: 48 100% 88%;
+    
+    --text-primary: 223 22% 13%;
+    --text-secondary: 223 8% 47%;
+    --text-muted: 223 8% 47%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
