@@ -32,11 +32,15 @@ export class SeatLockService {
     channel: 'WEB' | 'MOBILE' | 'AGENT' = 'WEB'
   ): Promise<{ success: boolean; lockId?: string; conflictSeats?: string[] }> {
     
-    // Check if seats are available (atomic operation simulation)
+    // Check if seats are available (only check new seats, not already held by this user)
     const conflictSeats: string[] = [];
+    const existingUserLock = this.getUserActiveLock(userId);
+    const currentlyHeldByUser = existingUserLock ? existingUserLock.seatIds : [];
+    
     for (const seatId of seatIds) {
       const currentStatus = this.seatStatuses.get(seatId);
-      if (currentStatus !== 'FREE') {
+      if (currentStatus === 'OCCUPIED' || currentStatus === 'BLOCKED' || 
+          (currentStatus === 'HELD' && !currentlyHeldByUser.includes(seatId))) {
         conflictSeats.push(seatId);
       }
     }
@@ -48,7 +52,7 @@ export class SeatLockService {
     // Release any existing locks for this user
     this.releaseUserLocks(userId);
 
-    // Create new lock
+    // Create new lock for all requested seats
     const lockId = `lock_${Date.now()}_${userId}`;
     const ttl = channel === 'AGENT' ? this.AGENT_LOCK_TTL : this.DEFAULT_LOCK_TTL;
     const expiresAt = new Date(Date.now() + ttl);

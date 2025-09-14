@@ -78,10 +78,22 @@ const SeatSelection = () => {
     const seatId = `${tripId}-${seat.number}`
 
     if (selectedSeats.includes(seat.number)) {
-      // Deselect seat
-      setSelectedSeats(prev => prev.filter(s => s !== seat.number))
+      // Deselect seat - remove from selection and free the seat
+      const newSelection = selectedSeats.filter(s => s !== seat.number)
+      setSelectedSeats(newSelection)
+      
+      // Update seat status to FREE
+      setSeatData(prev => prev.map(s => ({
+        ...s,
+        status: s.number === seat.number ? 'FREE' : s.status
+      })))
+      
+      // If no seats left selected, clear lock
+      if (newSelection.length === 0) {
+        setLockId(null)
+      }
     } else {
-      // Select seat - hold it
+      // Select seat - add to selection and hold it
       const newSelection = [...selectedSeats, seat.number]
       const seatIds = newSelection.map(num => `${tripId}-${num}`)
       
@@ -96,15 +108,16 @@ const SeatSelection = () => {
         setSelectedSeats(newSelection)
         setLockId(result.lockId)
         
-        // Update seat display
+        // Update seat display - mark all selected seats as HELD
         setSeatData(prev => prev.map(s => ({
           ...s,
           status: newSelection.includes(s.number) ? 'HELD' : 
-                  (s.status === 'HELD' && !newSelection.includes(s.number) ? 'FREE' : s.status)
+                  (selectedSeats.includes(s.number) && !newSelection.includes(s.number) ? 'FREE' : s.status)
         })))
       } else {
-        // Handle conflict
+        // Handle conflict - show error message
         console.error('Failed to hold seats:', result.conflictSeats)
+        // You could show a toast here about seat unavailability
       }
     }
   }
@@ -272,12 +285,17 @@ const SeatSelection = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-primary rounded"></div>
-                      <span className="text-primary-foreground">Selected</span>
+                      <span>Selected</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-destructive rounded"></div>
                       <span>Occupied</span>
                     </div>
+                  </div>
+                  
+                  {/* Selection Instructions */}
+                  <div className="text-center text-sm text-muted-foreground mb-4">
+                    Click seats to select multiple. Click again to deselect.
                   </div>
 
                   {/* Seat Grid */}
