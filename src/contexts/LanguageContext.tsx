@@ -14,21 +14,27 @@ const translations: Record<string, Translations> = {
   en: {
     // Navigation
     'nav.home': 'Home',
-    'nav.bookings': 'Bookings',
+    'nav.bookings': 'Bookings', 
     'nav.settings': 'Settings',
     
     // Dashboard Header
     'header.english': 'English',
     'header.swahili': 'Kiswahili',
-    'header.profile': 'Profile',
-    'header.logout': 'Logout',
+    'header.profile': 'Profile Settings',
+    'header.logout': 'Sign Out',
     'header.passenger': 'Passenger',
+    'header.notifications': 'Notifications',
     
     // Welcome Section
-    'welcome.title': 'Welcome Back!',
-    'welcome.subtitle': 'Ready to book your next journey?',
+    'welcome.greeting': 'Welcome back, Alex 👋',
+    'welcome.subtitle': 'Here\'s your booking dashboard overview',
+    'welcome.noBookings': 'You don\'t have any upcoming bookings.',
+    'welcome.actionPrompt': 'Ready to book your next trip?',
     
     // Booking Stats
+    'stats.upcomingBookings': 'Upcoming Bookings',
+    'stats.noUpcomingText': 'No trips scheduled yet',
+    'stats.bookNowAction': 'Start booking below',
     'stats.totalBookings': 'Total Bookings',
     'stats.activeTrips': 'Active Trips',
     'stats.completedJourneys': 'Completed Journeys',
@@ -47,24 +53,24 @@ const translations: Record<string, Translations> = {
     
     // Bookings View
     'bookings.title': 'My Bookings',
-    'bookings.managementTitle': 'Bookings Management',
-    'bookings.managementSubtitle': 'Manage and track all passenger bookings',
+    'bookings.managementTitle': 'Booking Management',
+    'bookings.managementSubtitle': 'View and manage all your travel bookings',
     'bookings.search': 'Search by PNR, name, or phone...',
-    'bookings.all': 'All',
-    'bookings.ticketed': 'Ticketed',
+    'bookings.all': 'All Bookings',
+    'bookings.ticketed': 'Confirmed',
     'bookings.paid': 'Paid',
-    'bookings.awaiting': 'Awaiting',
+    'bookings.awaiting': 'Pending Payment',
     'bookings.cancelled': 'Cancelled',
     'bookings.route': 'Route',
     'bookings.seats': 'Seats',
     'bookings.bus': 'Bus',
     'bookings.train': 'Train',
-    'bookings.backToList': 'Back to Bookings List',
-    'bookings.passengerDetails': 'Passenger Details',
-    'bookings.tripDetails': 'Trip Details',
+    'bookings.backToList': 'Back to Bookings',
+    'bookings.passengerDetails': 'Passenger Information',
+    'bookings.tripDetails': 'Trip Information',
     'bookings.fareBreakdown': 'Fare Breakdown',
-    'bookings.bookingInfo': 'Booking Information',
-    'bookings.name': 'Name',
+    'bookings.bookingInfo': 'Booking Details',
+    'bookings.name': 'Full Name',
     'bookings.phone': 'Phone',
     'bookings.email': 'Email',
     'bookings.from': 'From',
@@ -74,16 +80,16 @@ const translations: Record<string, Translations> = {
     'bookings.operator': 'Operator',
     'bookings.baseFare': 'Base Fare',
     'bookings.taxes': 'Taxes & Fees',
-    'bookings.totalFare': 'Total Fare',
+    'bookings.totalFare': 'Total Amount',
     'bookings.bookingId': 'Booking ID',
     'bookings.pnr': 'PNR',
     'bookings.status': 'Status',
-    'bookings.createdAt': 'Created',
-    'bookings.updatedAt': 'Updated',
+    'bookings.createdAt': 'Booked On',
+    'bookings.updatedAt': 'Last Updated',
     
     // Settings
-    'settings.title': 'Settings',
-    'settings.subtitle': 'Settings functionality coming soon...'
+    'settings.title': 'Account Settings',
+    'settings.subtitle': 'Manage your preferences, notifications, and account details'
   },
   sw: {
     // Navigation
@@ -94,15 +100,21 @@ const translations: Record<string, Translations> = {
     // Dashboard Header
     'header.english': 'Kiingereza',
     'header.swahili': 'Kiswahili',
-    'header.profile': 'Wasifu',
-    'header.logout': 'Toka',
-    'header.passenger': 'Abiria',
+    'header.profile': 'Mipangilio ya Wasifu',
+    'header.logout': 'Ondoka',
+    'header.passenger': 'Msafiri',
+    'header.notifications': 'Arifa',
     
     // Welcome Section
-    'welcome.title': 'Karibu Tena!',
-    'welcome.subtitle': 'Uko tayari kuhifadhi safari yako ijayo?',
+    'welcome.greeting': 'Karibu tena, Alex 👋',
+    'welcome.subtitle': 'Hapa kuna muhtasari wa dashibodi yako',
+    'welcome.noBookings': 'Huna mahifadhi yoyote ya baadaye.',
+    'welcome.actionPrompt': 'Uko tayari kuhifadhi safari yako inayofuata?',
     
     // Booking Stats
+    'stats.upcomingBookings': 'Mahifadhi ya Baadaye',
+    'stats.noUpcomingText': 'Hakuna safari zilizopangwa bado',
+    'stats.bookNowAction': 'Anza kuhifadhi hapa chini',
     'stats.totalBookings': 'Mahifadhi Yote',
     'stats.activeTrips': 'Safari za Sasa',
     'stats.completedJourneys': 'Safari Zilizokamilika',
@@ -122,23 +134,23 @@ const translations: Record<string, Translations> = {
     // Bookings View
     'bookings.title': 'Mahifadhi Yangu',
     'bookings.managementTitle': 'Usimamizi wa Mahifadhi',
-    'bookings.managementSubtitle': 'Simamia na fuatilia mahifadhi yote ya abiria',
+    'bookings.managementSubtitle': 'Ona na simamia mahifadhi yako yote ya usafiri',
     'bookings.search': 'Tafuta kwa PNR, jina, au simu...',
-    'bookings.all': 'Yote',
-    'bookings.ticketed': 'Yenye Tiketi',
-    'bookings.paid': 'Yalipolipwa',
-    'bookings.awaiting': 'Yasubiri',
-    'bookings.cancelled': 'Yaliyofutwa',
+    'bookings.all': 'Mahifadhi Yote',
+    'bookings.ticketed': 'Yaliyothibitishwa',
+    'bookings.paid': 'Yaliyelipwa',
+    'bookings.awaiting': 'Yanasubiri Malipo',
+    'bookings.cancelled': 'Yalifutwa',
     'bookings.route': 'Njia',
     'bookings.seats': 'Viti',
     'bookings.bus': 'Basi',
     'bookings.train': 'Gari la Moshi',
-    'bookings.backToList': 'Rudi Kwenye Orodha ya Mahifadhi',
-    'bookings.passengerDetails': 'Maelezo ya Abiria',
-    'bookings.tripDetails': 'Maelezo ya Safari',
+    'bookings.backToList': 'Rudi kwenye Mahifadhi',
+    'bookings.passengerDetails': 'Taarifa za Msafiri',
+    'bookings.tripDetails': 'Taarifa za Safari',
     'bookings.fareBreakdown': 'Mgawanyo wa Nauli',
-    'bookings.bookingInfo': 'Taarifa za Uhifadhi',
-    'bookings.name': 'Jina',
+    'bookings.bookingInfo': 'Maelezo ya Uhifadhi',
+    'bookings.name': 'Jina Kamili',
     'bookings.phone': 'Simu',
     'bookings.email': 'Barua Pepe',
     'bookings.from': 'Kutoka',
@@ -148,16 +160,16 @@ const translations: Record<string, Translations> = {
     'bookings.operator': 'Mkaguzi',
     'bookings.baseFare': 'Nauli ya Msingi',
     'bookings.taxes': 'Kodi na Ada',
-    'bookings.totalFare': 'Nauli Jumla',
+    'bookings.totalFare': 'Jumla ya Kiasi',
     'bookings.bookingId': 'Kitambulisho cha Uhifadhi',
     'bookings.pnr': 'PNR',
     'bookings.status': 'Hali',
-    'bookings.createdAt': 'Ilitengenezwa',
-    'bookings.updatedAt': 'Ilisasishwa',
+    'bookings.createdAt': 'Ilihifadhiwa',
+    'bookings.updatedAt': 'Ilisasishwa Mwisho',
     
     // Settings
-    'settings.title': 'Mipangilio',
-    'settings.subtitle': 'Utendaji wa mipangilio unakuja hivi karibuni...'
+    'settings.title': 'Mipangilio ya Akaunti',
+    'settings.subtitle': 'Dhibiti mapendeleo yako, arifa, na maelezo ya akaunti'
   }
 };
 

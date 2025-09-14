@@ -39,71 +39,103 @@ const DashboardHeader = () => {
   };
 
   return (
-    <header className="flex w-full items-center justify-between flex-wrap py-4 max-md:max-w-full">
-      <img
-        src="https://api.builder.io/api/v1/image/assets/c88c6030e63c40c6b5ec787e5d7f1a8c/8b38132fcf06c4e7e02e8e1f628ee71f332c7504?placeholderIfAbsent=true"
-        alt="Company Logo"
-        className="w-[113px] h-20 object-contain"
-      />
+    <header 
+      className="flex items-center justify-between py-4 border-b border-border/40"
+      role="banner"
+    >
+      {/* Logo Section */}
+      <div className="flex items-center">
+        <img
+          src="https://api.builder.io/api/v1/image/assets/c88c6030e63c40c6b5ec787e5d7f1a8c/8b38132fcf06c4e7e02e8e1f628ee71f332c7504?placeholderIfAbsent=true"
+          alt="LATRA Bus Booking System Logo"
+          className="h-12 w-auto object-contain"
+        />
+        <div className="hidden md:block ml-4 border-l border-border pl-4">
+          <h1 className="text-lg font-semibold text-foreground">Passenger Dashboard</h1>
+        </div>
+      </div>
       
-      <div className="flex items-center gap-4">
+      {/* Actions Section */}
+      <div className="flex items-center gap-3">
+        {/* Language Selector */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Globe className="w-3 h-3" />
-              {getCurrentLanguageDisplay()}
-              <ChevronDown className="w-3 h-3" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              aria-label="Select language"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="hidden sm:inline">{getCurrentLanguageDisplay()}</span>
+              <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuContent align="end" className="w-44 bg-background border shadow-lg">
             {languages.map((language) => (
               <DropdownMenuItem 
                 key={language.code}
-                className="cursor-pointer"
+                className="cursor-pointer flex items-center justify-between"
                 onClick={() => handleLanguageChange(language.name)}
               >
-                <div className="flex items-center justify-between w-full">
-                  <span>{language.displayName}</span>
-                  {currentLanguage === language.code && (
-                    <Check className="w-4 h-4" />
-                  )}
-                </div>
+                <span>{language.displayName}</span>
+                {currentLanguage === language.code && (
+                  <Check className="w-4 h-4 text-primary" />
+                )}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
         
-        <Button variant="outline" size="icon" className="w-12 h-12">
-          <Bell className="w-6 h-6" />
+        {/* Notifications */}
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="relative"
+          aria-label={t('header.notifications')}
+        >
+          <Bell className="w-5 h-5" />
+          {/* Notification badge - hidden when no notifications */}
+          <span className="sr-only">No new notifications</span>
         </Button>
         
+        {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-3 bg-brand-light px-4 py-2 rounded-lg cursor-pointer hover:bg-brand-light/80 transition-colors">
+            <button 
+              className="flex items-center gap-3 bg-muted/50 hover:bg-muted px-3 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label="User account menu"
+            >
               <img
                 src="https://api.builder.io/api/v1/image/assets/c88c6030e63c40c6b5ec787e5d7f1a8c/122002ef1a95914ed358cfb0d7b3d4139966712b?placeholderIfAbsent=true"
-                alt="User Avatar"
-                className="w-6 h-6 rounded-full object-contain"
+                alt="Alex Kamau profile picture"
+                className="w-8 h-8 rounded-full object-cover border border-border"
               />
-              <div className="flex flex-col">
-                <div className="text-sm font-semibold text-foreground">
+              <div className="hidden sm:flex flex-col text-left">
+                <span className="text-sm font-medium text-foreground">
                   Alex Kamau
-                </div>
-                <div className="text-xs text-muted-foreground">
+                </span>
+                <span className="text-xs text-muted-foreground">
                   {t('header.passenger')}
-                </div>
+                </span>
               </div>
-              <ChevronDown className="w-3 h-3 text-muted-foreground" />
-            </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem className="cursor-pointer" onClick={handleProfileClick}>
-              <User className="mr-2 h-4 w-4" />
+          <DropdownMenuContent align="end" className="w-56 bg-background border shadow-lg">
+            <DropdownMenuItem 
+              className="cursor-pointer focus:bg-muted" 
+              onClick={handleProfileClick}
+            >
+              <User className="mr-3 h-4 w-4" />
               <span>{t('header.profile')}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={handleLogoutClick}>
-              <LogOut className="mr-2 h-4 w-4" />
+            <DropdownMenuItem 
+              className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10" 
+              onClick={handleLogoutClick}
+            >
+              <LogOut className="mr-3 h-4 w-4" />
               <span>{t('header.logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

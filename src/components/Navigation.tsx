@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Home, Calendar, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import NavItem from '@/components/ui/NavItem';
 
 interface NavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
+/**
+ * Navigation: Sidebar navigation component
+ * - Clean, accessible navigation with icons and labels
+ * - Active state management
+ * - Responsive design with proper spacing
+ */
 const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
   const { t } = useLanguage();
   
@@ -14,44 +21,47 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
     {
       id: 'home',
       name: t('nav.home'),
-      icon: Home
+      icon: Home,
+      description: 'Dashboard overview with welcome, stats, and quick actions'
     },
     {
       id: 'bookings',
       name: t('nav.bookings'),
-      icon: Calendar
+      icon: Calendar,
+      description: 'View and manage all your travel bookings'
     },
     {
       id: 'settings',
       name: t('nav.settings'),
-      icon: Settings
+      icon: Settings,
+      description: 'Account settings and preferences'
     }
   ];
 
   return (
-    <nav className="bg-card shadow-sm flex flex-col w-[202px] p-8 rounded-3xl border max-md:px-5">
-      <div className="w-full max-w-[138px]">
-        {navigationItems.map((item, index) => {
-          const IconComponent = item.icon;
-          return (
-            <div
+    <nav 
+      className="bg-card shadow-sm w-full lg:w-[240px] p-6 rounded-2xl border"
+      role="navigation"
+      aria-label="Main navigation"
+    >
+      {/* Navigation Header */}
+      <div className="mb-6">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+          Main Menu
+        </h2>
+        
+        {/* Navigation Items */}
+        <div className="space-y-2" role="menu">
+          {navigationItems.map((item) => (
+            <NavItem
               key={item.id}
-              className={`flex w-full items-center gap-2 p-4 cursor-pointer transition-colors rounded-2xl ${
-                index > 0 ? 'mt-4' : ''
-              } ${
-                activeTab === item.id
-                  ? 'text-primary font-semibold bg-brand-light'
-                  : 'text-muted-foreground hover:bg-muted'
-              }`}
+              icon={item.icon}
+              label={item.name}
+              isActive={activeTab === item.id}
               onClick={() => onTabChange(item.id)}
-            >
-              <IconComponent className="w-5 h-5" />
-              <div className="text-sm">
-                {item.name}
-              </div>
-            </div>
-          );
-        })}
+            />
+          ))}
+        </div>
       </div>
     </nav>
   );
