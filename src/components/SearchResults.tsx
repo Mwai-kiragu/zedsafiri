@@ -14,9 +14,13 @@ interface SearchResult {
   arrivalTime: string
   duration: string
   price: number
+  baseFare: number
+  latraFee: number
+  commission: number
   seatsAvailable: number
   amenities: string[]
   rating: number
+  class: string
 }
 
 interface SearchResultsProps {
@@ -29,69 +33,119 @@ interface SearchResultsProps {
   }
 }
 
-// Mock data for demonstration - Tanzanian operators and routes
-const mockResults: SearchResult[] = [
-  {
-    id: '1',
-    type: 'bus',
-    operator: 'Kilimanjaro Express',
-    departureTime: '06:00',
-    arrivalTime: '12:30',
-    duration: '6h 30m',
-    price: 32000,
-    seatsAvailable: 8,
-    amenities: ['wifi', 'ac', 'charging'],
-    rating: 4.5
-  },
-  {
-    id: '2',
-    type: 'bus',
-    operator: 'Scandinavian Express',
-    departureTime: '08:15',
-    arrivalTime: '14:45',
-    duration: '6h 30m',
-    price: 35000,
-    seatsAvailable: 5,
-    amenities: ['wifi', 'ac', 'entertainment', 'snacks'],
-    rating: 4.8
-  },
-  {
-    id: '3',
-    type: 'train',
-    operator: 'Tanzania Railways Corporation (TRC)',
-    departureTime: '07:00',
-    arrivalTime: '15:00',
-    duration: '8h 00m',
-    price: 25000,
-    seatsAvailable: 12,
-    amenities: ['wifi', 'dining'],
-    rating: 4.2
-  },
-  {
-    id: '4',
-    type: 'bus',
-    operator: 'Fresh Ya Shamba',
-    departureTime: '14:00',
-    arrivalTime: '20:30',
-    duration: '6h 30m',
-    price: 30000,
-    seatsAvailable: 3,
-    amenities: ['ac', 'charging'],
-    rating: 4.3
-  },
-  {
-    id: '5',
-    type: 'train',
-    operator: 'Standard Gauge Railway (SGR)',
-    departureTime: '09:30',
-    arrivalTime: '16:30',
-    duration: '7h 00m',
-    price: 40000,
-    seatsAvailable: 18,
-    amenities: ['wifi', 'entertainment', 'dining', 'ac'],
-    rating: 4.7
-  }
-]
+// Mock data for demonstration - Comprehensive Tanzania route data
+const generateMockResults = (from: string, to: string, type: 'bus' | 'train', date: string): SearchResult[] => {
+  const routeData = [
+    // Dodoma to Mwanza routes
+    {
+      route: 'Dodoma-Mwanza',
+      operators: [
+        {
+          id: 'DM001',
+          type: 'bus' as const,
+          operator: 'Kilimanjaro Express',
+          departureTime: '06:00',
+          arrivalTime: '14:30',
+          duration: '8h 30m',
+          baseFare: 28000,
+          seatsAvailable: 12,
+          amenities: ['wifi', 'ac', 'charging'],
+          rating: 4.5,
+          class: 'Semi-Luxury'
+        },
+        {
+          id: 'DM002',
+          type: 'bus' as const,
+          operator: 'Scandinavian Express',
+          departureTime: '08:00',
+          arrivalTime: '16:30',
+          duration: '8h 30m',
+          baseFare: 32000,
+          seatsAvailable: 8,
+          amenities: ['wifi', 'ac', 'entertainment', 'snacks'],
+          rating: 4.8,
+          class: 'Luxury'
+        },
+        {
+          id: 'DM003',
+          type: 'train' as const,
+          operator: 'Tanzania Railways Corporation (TRC)',
+          departureTime: '07:30',
+          arrivalTime: '18:00',
+          duration: '10h 30m',
+          baseFare: 22000,
+          seatsAvailable: 20,
+          amenities: ['dining', 'wifi'],
+          rating: 4.1,
+          class: 'Standard'
+        }
+      ]
+    },
+    // Dar es Salaam to Arusha routes
+    {
+      route: 'Dar es Salaam-Arusha',
+      operators: [
+        {
+          id: 'DA001',
+          type: 'bus' as const,
+          operator: 'Fresh Ya Shamba',
+          departureTime: '06:30',
+          arrivalTime: '13:00',
+          duration: '6h 30m',
+          baseFare: 25000,
+          seatsAvailable: 15,
+          amenities: ['ac', 'charging'],
+          rating: 4.3,
+          class: 'Standard'
+        },
+        {
+          id: 'DA002',
+          type: 'train' as const,
+          operator: 'Standard Gauge Railway (SGR)',
+          departureTime: '09:00',
+          arrivalTime: '16:00',
+          duration: '7h 00m',
+          baseFare: 35000,
+          seatsAvailable: 25,
+          amenities: ['wifi', 'entertainment', 'dining', 'ac'],
+          rating: 4.7,
+          class: 'Express'
+        }
+      ]
+    }
+  ];
+
+  // Find matching route or use default
+  const matchingRoute = routeData.find(r => 
+    r.route.includes(from) && r.route.includes(to)
+  ) || routeData[0]; // Default to first route if no match
+
+  // Filter by transport type and add fare breakdown
+  return matchingRoute.operators
+    .filter(op => op.type === type)
+    .map(op => {
+      const latraFee = Math.round(op.baseFare * 0.05); // 5% LATRA fee
+      const commission = Math.round(op.baseFare * 0.08); // 8% booking commission
+      const totalPrice = op.baseFare + latraFee + commission;
+
+      return {
+        id: op.id,
+        type: op.type,
+        operator: op.operator,
+        departureTime: op.departureTime,
+        arrivalTime: op.arrivalTime,
+        duration: op.duration,
+        price: totalPrice,
+        baseFare: op.baseFare,
+        latraFee,
+        commission,
+        seatsAvailable: op.seatsAvailable,
+        amenities: op.amenities,
+        rating: op.rating,
+        class: op.class
+      };
+    });
+};
 
 const getAmenityIcon = (amenity: string) => {
   switch (amenity) {
@@ -109,7 +163,13 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
   const [selectedResult, setSelectedResult] = useState<string | null>(null)
   const navigate = useNavigate()
 
-  const filteredResults = mockResults.filter(result => result.type === searchParams.type)
+  // Generate filtered results based on search parameters
+  const filteredResults = generateMockResults(
+    searchParams.from, 
+    searchParams.to, 
+    searchParams.type, 
+    searchParams.departureDate
+  )
 
   const handleBookNow = (resultId: string) => {
     const result = filteredResults.find(r => r.id === resultId)
@@ -117,7 +177,8 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
       navigate('/booking/confirm', { 
         state: { 
           booking: result, 
-          searchParams 
+          searchParams,
+          step: 'seat-selection'
         } 
       })
     }
@@ -165,6 +226,10 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
                         <Users className="w-3 h-3 mr-1" />
                         {result.seatsAvailable} seats left
                       </span>
+                      <Separator orientation="vertical" className="h-4" />
+                      <span className="text-xs bg-secondary px-2 py-1 rounded">
+                        {result.class}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -173,6 +238,9 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
                     TZS {result.price.toLocaleString()}
                   </div>
                   <div className="text-sm text-muted-foreground">per person</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Base: {result.baseFare.toLocaleString()} + Fees: {(result.latraFee + result.commission).toLocaleString()}
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -222,6 +290,29 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
                   </div>
                 </div>
 
+                {/* Fare Breakdown */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Fare Breakdown</div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span>Base Fare:</span>
+                      <span>TZS {result.baseFare.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>LATRA Fee (5%):</span>
+                      <span>TZS {result.latraFee.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Booking Fee (8%):</span>
+                      <span>TZS {result.commission.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold border-t pt-1">
+                      <span>Total:</span>
+                      <span>TZS {result.price.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Action Button */}
                 <div className="flex items-end justify-end">
                   <Button 
@@ -229,7 +320,7 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
                     className="w-full md:w-auto px-6"
                     disabled={result.seatsAvailable === 0}
                   >
-                    {result.seatsAvailable === 0 ? 'Sold Out' : 'Book Now'}
+                    {result.seatsAvailable === 0 ? 'Sold Out' : 'Select Seats'}
                   </Button>
                 </div>
               </div>
