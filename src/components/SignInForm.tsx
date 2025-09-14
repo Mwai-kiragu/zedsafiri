@@ -109,12 +109,12 @@ export const SignInForm = () => {
                       onChange={(e) => setDialCode(e.target.value)}
                       className="bg-[#E8E9F1] px-2.5 py-[5px] rounded-md text-[#1F2024] text-sm font-normal leading-5 border-0 focus:outline-none"
                     >
-                      <option value="+211">🇸🇸 +211</option>
-                      <option value="+255">🇹🇿 +255</option>
-                      <option value="+254">🇰🇪 +254</option>
-                      <option value="+250">🇷🇼 +250</option>
-                      <option value="+257">🇧🇮 +257</option>
-                      <option value="+256">🇺🇬 +256</option>
+                      <option value="+211">🇸🇸 +211 (South Sudan)</option>
+                      <option value="+255">🇹🇿 +255 (Tanzania)</option>
+                      <option value="+254">🇰🇪 +254 (Kenya)</option>
+                      <option value="+250">🇷🇼 +250 (Rwanda)</option>
+                      <option value="+257">🇧🇮 +257 (Burundi)</option>
+                      <option value="+256">🇺🇬 +256 (Uganda)</option>
                     </select>
                     <Input
                       {...register("phoneNumber", { 
