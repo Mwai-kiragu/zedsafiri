@@ -1,4 +1,4 @@
-// Currency Converter Service for Display Purposes
+// East African Currency Converter Service for Display Purposes
 // All transactions remain in TZS for LATRA compliance
 
 export interface CurrencyRate {
@@ -9,11 +9,12 @@ export interface CurrencyRate {
 }
 
 export const supportedCurrencies: CurrencyRate[] = [
-  { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TZS', rate: 1 },
-  { code: 'USD', name: 'US Dollar', symbol: '$', rate: 0.00042 }, // ~2380 TZS = 1 USD
-  { code: 'EUR', name: 'Euro', symbol: '€', rate: 0.00038 }, // ~2630 TZS = 1 EUR  
-  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh', rate: 0.054 }, // ~18.5 TZS = 1 KES
-  { code: 'GBP', name: 'British Pound', symbol: '£', rate: 0.00033 }, // ~3030 TZS = 1 GBP
+  { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TSh', rate: 1 }, // Base currency
+  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh', rate: 0.18 }, // 1 TZS = 0.18 KES
+  { code: 'UGX', name: 'Ugandan Shilling', symbol: 'USh', rate: 1.55 }, // 1 TZS = 1.55 UGX
+  { code: 'RWF', name: 'Rwandan Franc', symbol: 'FRw', rate: 0.54 }, // 1 TZS = 0.54 RWF
+  { code: 'BIF', name: 'Burundian Franc', symbol: 'FBu', rate: 1.20 }, // 1 TZS = 1.20 BIF
+  { code: 'SSP', name: 'South Sudanese Pound', symbol: 'SS£', rate: 0.0007 }, // 1 TZS = 0.0007 SSP
 ];
 
 export class CurrencyConverter {
@@ -37,7 +38,7 @@ export class CurrencyConverter {
 
     const rounded = Math.round(amount * 100) / 100;
     
-    if (currency === 'TZS') {
+    if (currency === 'TZS' || currency === 'UGX' || currency === 'RWF' || currency === 'BIF') {
       return `${currencyInfo.symbol} ${rounded.toLocaleString()}`;
     }
     
