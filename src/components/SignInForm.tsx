@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -16,13 +16,14 @@ interface SignInFormData {
 export const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [loginMethod, setLoginMethod] = useState<"mobile" | "email">("mobile")
+  const navigate = useNavigate()
   
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>()
 
   const onSubmit = (data: SignInFormData) => {
     console.log("Sign in data:", data)
     // Navigate to dashboard after successful login
-    window.location.href = '/dashboard'
+    navigate('/dashboard')
   }
 
   const handleSocialLogin = (provider: "google" | "apple") => {
