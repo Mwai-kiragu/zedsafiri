@@ -7,6 +7,7 @@ import RecentBookings from '@/components/RecentBookings';
 import BookingSimulation from '@/components/BookingSimulation';
 import BookingsView from '@/components/BookingsView';
 import MyTickets from '@/components/MyTickets';
+import RouteConfigTable from '@/components/RouteConfigTable';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
@@ -28,6 +29,9 @@ const Dashboard = () => {
             <BookingsView />
           </div>
         );
+      
+      case 'routes':
+        return <RouteConfigTable />;
       
       case 'settings':
         return (

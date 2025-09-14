@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Calendar, Settings } from 'lucide-react';
+import { Home, Calendar, Settings, Route } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import NavItem from '@/components/ui/NavItem';
 
@@ -29,6 +29,12 @@ const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
       name: t('nav.bookings'),
       icon: Calendar,
       description: 'View and manage all your travel bookings'
+    },
+    {
+      id: 'routes',
+      name: 'Routes',
+      icon: Route,
+      description: 'Manage routes, destinations, and LATRA-approved fares'
     },
     {
       id: 'settings',
