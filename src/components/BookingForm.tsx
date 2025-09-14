@@ -58,7 +58,13 @@ const BookingForm = () => {
         <h2 className="text-brand-light text-3xl font-semibold">
           Book Your Next Trip
         </h2>
-        <form className="w-full text-sm font-normal mt-8 max-md:max-w-full">
+          <form 
+            className="w-full text-sm font-normal mt-8 max-md:max-w-full"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch();
+            }}
+          >
           <div className="flex w-full gap-6 flex-wrap max-md:max-w-full">
             <div className="flex items-center bg-brand-light rounded-xl p-1.5 w-fit">
               <button
@@ -146,8 +152,7 @@ const BookingForm = () => {
             </div>
             
             <Button
-              type="button"
-              onClick={handleSearch}
+              type="submit"
               className="flex-1 min-w-60 bg-brand-light text-primary hover:bg-brand-light/90 font-semibold"
             >
               Search
