@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CalendarIcon, Bus, Train } from 'lucide-react';
 import { getAllCities } from '@/data/tanzanianRoutes';
 
+// BookingForm component with mock data and city dropdowns
 const BookingForm = () => {
   const [transportType, setTransportType] = useState('bus');
   const [fromLocation, setFromLocation] = useState('');
