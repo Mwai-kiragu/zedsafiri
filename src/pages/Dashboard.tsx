@@ -5,7 +5,6 @@ import BookingStats from '@/components/BookingStats';
 import BookingForm from '@/components/BookingForm';
 import RecentBookings from '@/components/RecentBookings';
 import BookingSimulation from '@/components/BookingSimulation';
-import AppleSection from '@/components/AppleSection';
 
 const Dashboard = () => {
   return (
@@ -20,7 +19,6 @@ const Dashboard = () => {
           </div>
           <BookingForm />
           <RecentBookings />
-          <AppleSection />
           <BookingSimulation />
         </main>
       </div>
