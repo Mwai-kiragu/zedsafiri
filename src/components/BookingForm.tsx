@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,11 +12,23 @@ const BookingForm = () => {
   const [transportType, setTransportType] = useState('bus');
   const [fromLocation, setFromLocation] = useState('');
   const [toLocation, setToLocation] = useState('');
-  const [travelDate, setTravelDate] = useState('2025-01-20');
+  const [travelDate, setTravelDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
+  const [today, setToday] = useState('');
   
   const navigate = useNavigate();
   const cities = getAllCities();
+
+  useEffect(() => {
+    // Format today's date as YYYY-MM-DD for input[type=date]
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const todayFormatted = `${yyyy}-${mm}-${dd}`;
+    setToday(todayFormatted);
+    setTravelDate(todayFormatted); // Pre-fill with today's date
+  }, []);
 
   const handleSearch = () => {
     // Validate form inputs
@@ -133,6 +145,7 @@ const BookingForm = () => {
                   value={travelDate}
                   onChange={(e) => setTravelDate(e.target.value)}
                   className="pr-10"
+                  min={today}
                 />
                 <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               </div>
@@ -146,6 +159,7 @@ const BookingForm = () => {
                   value={returnDate}
                   onChange={(e) => setReturnDate(e.target.value)}
                   className="pr-10"
+                  min={travelDate || today}
                 />
                 <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               </div>
