@@ -4,45 +4,48 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BookingStateMachine } from '@/services/bookingStateMachine';
 import { FareEngine } from '@/services/fareEngine';
 import { SeatLockService } from '@/services/seatLockService';
 import { PaymentService } from '@/services/paymentService';
 import { Booking, BookingState, Trip, SeatStatus, PaymentMethod } from '@/types/booking';
+import { POPULAR_ROUTES, generateTripsForRoute, getOperatorInfo, getAllCities, RouteInfo } from '@/data/tanzanianRoutes';
 
 const BookingSimulation = () => {
   const [currentBooking, setCurrentBooking] = useState<Booking | null>(null);
   const [seatMap, setSeatMap] = useState<Map<string, SeatStatus>>(new Map());
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [lockCountdown, setLockCountdown] = useState<number>(0);
+  const [selectedRoute, setSelectedRoute] = useState<RouteInfo>(POPULAR_ROUTES[0]);
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [availableTrips, setAvailableTrips] = useState<Trip[]>([]);
+  const [travelDate, setTravelDate] = useState('2025-03-15');
   const [passengerDetails, setPassengerDetails] = useState({
     name: 'John Doe',
     phone: '+255712345678',
     email: 'john@example.com'
   });
 
-  // Mock trip data
-  const mockTrip: Trip = {
-    id: 'trip_001',
-    routeId: 'route_dar_mwanza',
-    operatorId: 'operator_001',
-    vehicleId: 'vehicle_001',
-    origin: 'Dar es Salaam',
-    destination: 'Mwanza',
-    departureTime: '2025-03-15 08:00',
-    arrivalTime: '2025-03-15 16:30',
-    class: 'Economy',
-    status: 'Scheduled',
-    baseFare: 25000,
-    seatsAvailable: 45,
-    totalSeats: 50
-  };
+  const cities = getAllCities();
 
   useEffect(() => {
-    // Initialize seats for simulation
-    SeatLockService.initializeSeats(mockTrip.id, mockTrip.totalSeats);
-    updateSeatMap();
-  }, []);
+    // Generate trips for selected route
+    const trips = generateTripsForRoute(selectedRoute, travelDate);
+    setAvailableTrips(trips);
+    if (trips.length > 0) {
+      setSelectedTrip(trips[0]);
+    }
+  }, [selectedRoute, travelDate]);
+
+  useEffect(() => {
+    // Initialize seats when trip changes
+    if (selectedTrip) {
+      SeatLockService.initializeSeats(selectedTrip.id, selectedTrip.totalSeats);
+      updateSeatMap();
+      setSelectedSeats([]);
+    }
+  }, [selectedTrip]);
 
   useEffect(() => {
     // Update countdown timer
@@ -65,12 +68,14 @@ const BookingSimulation = () => {
   }, [currentBooking]);
 
   const updateSeatMap = () => {
-    const seats = SeatLockService.getSeatStatus(mockTrip.id);
-    setSeatMap(seats);
+    if (selectedTrip) {
+      const seats = SeatLockService.getSeatStatus(selectedTrip.id);
+      setSeatMap(seats);
+    }
   };
 
   const handleSeatSelection = async (seatId: string) => {
-    if (seatMap.get(seatId) !== 'FREE') return;
+    if (!selectedTrip || seatMap.get(seatId) !== 'FREE') return;
 
     const newSelection = selectedSeats.includes(seatId) 
       ? selectedSeats.filter(id => id !== seatId)
@@ -78,7 +83,7 @@ const BookingSimulation = () => {
 
     if (newSelection.length > 0) {
       const result = await SeatLockService.holdSeats(
-        mockTrip.id, 
+        selectedTrip.id, 
         newSelection, 
         'user_123', 
         'WEB'
@@ -98,18 +103,18 @@ const BookingSimulation = () => {
   };
 
   const createBooking = () => {
-    if (selectedSeats.length === 0) {
+    if (selectedSeats.length === 0 || !selectedTrip) {
       alert('Please select seats first');
       return;
     }
 
     const pnr = `PNR${Date.now()}`;
-    const fareBreakdown = FareEngine.calculateFare(mockTrip, selectedSeats.length, 'WEB');
+    const fareBreakdown = FareEngine.calculateFare(selectedTrip, selectedSeats.length, 'WEB');
 
     const booking: Booking = {
       id: `booking_${Date.now()}`,
       pnr,
-      tripId: mockTrip.id,
+      tripId: selectedTrip.id,
       passengerName: passengerDetails.name,
       passengerPhone: passengerDetails.phone,
       passengerEmail: passengerDetails.email,
@@ -199,17 +204,65 @@ const BookingSimulation = () => {
 
         <TabsContent value="booking" className="space-y-4">
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Trip Details</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p><strong>Route:</strong> {mockTrip.origin} → {mockTrip.destination}</p>
-                <p><strong>Departure:</strong> {mockTrip.departureTime}</p>
-                <p><strong>Class:</strong> {mockTrip.class}</p>
+            <h2 className="text-xl font-semibold mb-4">Route Selection</h2>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <Select value={selectedRoute.id} onValueChange={(value) => {
+                const route = POPULAR_ROUTES.find(r => r.id === value);
+                if (route) setSelectedRoute(route);
+              }}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {POPULAR_ROUTES.map((route) => (
+                    <SelectItem key={route.id} value={route.id}>
+                      {route.origin.name} → {route.destination.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Input
+                type="date"
+                value={travelDate}
+                onChange={(e) => setTravelDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
+              
+              <div className="text-sm text-muted-foreground">
+                <p>{selectedRoute.distanceKm}km • {selectedRoute.durationHours}h</p>
+                <p>Base fare: TZS {selectedRoute.baseFare.toLocaleString()}</p>
               </div>
-              <div>
-                <p><strong>Base Fare:</strong> TZS {mockTrip.baseFare.toLocaleString()}</p>
-                <p><strong>Available Seats:</strong> {mockTrip.seatsAvailable}</p>
-                <p><strong>Status:</strong> {mockTrip.status}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold">Available Trips ({availableTrips.length})</h3>
+              <div className="grid gap-2 max-h-40 overflow-y-auto">
+                {availableTrips.map((trip) => {
+                  const operator = getOperatorInfo(trip.operatorId);
+                  return (
+                    <div
+                      key={trip.id}
+                      className={`p-3 border rounded cursor-pointer transition-colors ${
+                        selectedTrip?.id === trip.id ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                      }`}
+                      onClick={() => setSelectedTrip(trip)}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{operator?.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {trip.departureTime.split(' ')[1]} - {trip.arrivalTime.split(' ')[1]} • {trip.class}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">TZS {trip.baseFare.toLocaleString()}</p>
+                          <p className="text-sm text-muted-foreground">{trip.seatsAvailable} seats</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </Card>
@@ -235,11 +288,11 @@ const BookingSimulation = () => {
             </div>
           </Card>
 
-          {selectedSeats.length > 0 && (
+          {selectedSeats.length > 0 && selectedTrip && (
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">Fare Breakdown</h2>
               {(() => {
-                const fareBreakdown = FareEngine.calculateFare(mockTrip, selectedSeats.length, 'WEB');
+                const fareBreakdown = FareEngine.calculateFare(selectedTrip, selectedSeats.length, 'WEB');
                 return (
                   <div className="space-y-2">
                     <div className="flex justify-between">
