@@ -12,10 +12,14 @@ import { useToast } from "@/hooks/use-toast"
 import Layout from "@/components/Layout"
 import { currencyConverter, type CurrencyRate } from "@/services/currencyConverter"
 import { ticketService } from "@/services/ticketService"
+import { SeatLockService } from "@/services/seatLockService"
 
 interface BookingData {
   booking: any
   searchParams: any
+  selectedSeats?: string[]
+  lockId?: string
+  step?: string
 }
 
 const BookingConfirm = () => {
@@ -24,7 +28,7 @@ const BookingConfirm = () => {
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
   
-  const { booking, searchParams } = (location.state as BookingData) || {}
+  const { booking, searchParams, selectedSeats = [], lockId } = (location.state as BookingData) || {}
 
   const [passengerDetails, setPassengerDetails] = useState({
     fullName: '',
@@ -42,7 +46,7 @@ const BookingConfirm = () => {
     return null
   }
 
-  const totalPrice = booking.price * searchParams.passengers
+  const totalPrice = booking.price * selectedSeats.length
   const serviceFee = 2000
   const totalTZS = totalPrice + serviceFee
   
@@ -56,10 +60,24 @@ const BookingConfirm = () => {
     
     // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Convert held seats to occupied if payment succeeds
+    if (lockId) {
+      const converted = SeatLockService.convertToOccupied(lockId, 'PNR' + Date.now())
+      if (!converted) {
+        toast({
+          title: "Booking Failed",
+          description: "Failed to secure your seats. Please try again.",
+          variant: "destructive"
+        })
+        setIsProcessing(false)
+        return
+      }
+    }
     
     // Save ticket to local storage
     const savedTicket = ticketService.saveTicket(
-      { booking, searchParams },
+      { booking, searchParams, selectedSeats },
       passengerDetails,
       paymentMethod.toUpperCase(),
       totalTZS,
@@ -68,7 +86,7 @@ const BookingConfirm = () => {
     
     toast({
       title: "Booking Confirmed!",
-      description: `Your ${booking.type} ticket has been booked successfully. PNR: ${savedTicket.pnr}`,
+      description: `Your ${booking.type} ticket has been booked successfully. PNR: ${savedTicket.pnr}. Seats: ${selectedSeats.join(', ')}`,
     })
     
     setIsProcessing(false)
@@ -86,7 +104,7 @@ const BookingConfirm = () => {
               className="mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Results
+              Back to Seat Selection
             </Button>
           </div>
 
@@ -134,15 +152,15 @@ const BookingConfirm = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-4 text-sm">
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-1 text-muted-foreground" />
-                      {booking.duration}
-                    </div>
-                    <div>
-                      {searchParams.passengers} passenger{searchParams.passengers > 1 ? 's' : ''}
-                    </div>
-                  </div>
+                   <div className="flex items-center space-x-4 text-sm">
+                     <div className="flex items-center">
+                       <Clock className="w-4 h-4 mr-1 text-muted-foreground" />
+                       {booking.duration}
+                     </div>
+                     <div>
+                       {selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''}: {selectedSeats.join(', ')}
+                     </div>
+                   </div>
                 </CardContent>
               </Card>
 
@@ -259,11 +277,14 @@ const BookingConfirm = () => {
                   <CardTitle>Booking Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>{booking.type} ticket × {searchParams.passengers}</span>
-                      <span>{currencyConverter.formatAmount(convertedBasePrice * searchParams.passengers, selectedCurrency)}</span>
-                    </div>
+                   <div className="space-y-2">
+                     <div className="flex justify-between">
+                       <span>{booking.type} ticket × {selectedSeats.length}</span>
+                       <span>{currencyConverter.formatAmount(convertedBasePrice * selectedSeats.length, selectedCurrency)}</span>
+                     </div>
+                     <div className="text-xs text-muted-foreground">
+                       Seats: {selectedSeats.join(', ')}
+                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>Service fee</span>
                       <span>{currencyConverter.formatAmount(convertedServiceFee, selectedCurrency)}</span>

@@ -174,11 +174,10 @@ export const SearchResults = ({ searchParams }: SearchResultsProps) => {
   const handleBookNow = (resultId: string) => {
     const result = filteredResults.find(r => r.id === resultId)
     if (result) {
-      navigate('/booking/confirm', { 
+      navigate('/booking/seat-selection', { 
         state: { 
           booking: result, 
-          searchParams,
-          step: 'seat-selection'
+          searchParams
         } 
       })
     }
