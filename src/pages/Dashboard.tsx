@@ -4,6 +4,7 @@ import WelcomeSection from '@/components/WelcomeSection';
 import BookingStats from '@/components/BookingStats';
 import BookingForm from '@/components/BookingForm';
 import RecentBookings from '@/components/RecentBookings';
+import BookingSimulation from '@/components/BookingSimulation';
 
 const Dashboard = () => {
   return (
@@ -18,6 +19,7 @@ const Dashboard = () => {
           </div>
           <BookingForm />
           <RecentBookings />
+          <BookingSimulation />
         </main>
       </div>
     </div>
