@@ -53,71 +53,72 @@ export const SignInForm = () => {
         <Tabs 
           value={loginMethod} 
           onValueChange={(value) => setLoginMethod(value as "mobile" | "email")}
-          className="flex w-[332px] justify-center items-center gap-2 p-1 rounded-2xl max-sm:w-full"
+          className="flex w-full flex-col gap-4"
         >
-          <TabsList className="grid w-full grid-cols-2 bg-transparent p-1">
-            <TabsTrigger 
-              value="mobile"
-              className="flex justify-center items-center gap-2.5 flex-[1_0_0] p-3 rounded-xl data-[state=active]:text-[#006FFD] data-[state=active]:bg-transparent data-[state=inactive]:text-[#71727A] data-[state=inactive]:bg-transparent"
-            >
-              <span className="font-bold text-center text-xs">Mobile Number</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="email"
-              className="flex justify-center items-center gap-2.5 flex-[1_0_0] p-3 rounded-xl data-[state=active]:text-[#006FFD] data-[state=active]:bg-transparent data-[state=inactive]:text-[#71727A] data-[state=inactive]:bg-transparent"
-            >
-              <span className="font-bold text-center text-xs">Email</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <div className="flex w-[332px] justify-center items-center gap-2 p-1 rounded-2xl max-sm:w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-transparent p-1">
+              <TabsTrigger 
+                value="mobile"
+                className="flex justify-center items-center gap-2.5 flex-[1_0_0] p-3 rounded-xl data-[state=active]:text-[#006FFD] data-[state=active]:bg-transparent data-[state=inactive]:text-[#71727A] data-[state=inactive]:bg-transparent"
+              >
+                <span className="font-bold text-center text-xs">Mobile Number</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="email"
+                className="flex justify-center items-center gap-2.5 flex-[1_0_0] p-3 rounded-xl data-[state=active]:text-[#006FFD] data-[state=active]:bg-transparent data-[state=inactive]:text-[#71727A] data-[state=inactive]:bg-transparent"
+              >
+                <span className="font-bold text-center text-xs">Email</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-start gap-4 w-full max-sm:gap-3">
-          <TabsContent value="mobile" className="w-full mt-0">
-            <div className="flex flex-col items-start gap-2 w-full bg-white">
-              <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
-                <div className="flex items-center gap-4 flex-[1_0_0]">
-                  <div className="flex flex-col justify-center items-center gap-2.5 bg-[#E8E9F1] px-2.5 py-[5px] rounded-md">
-                    <span className="text-[#1F2024] text-sm font-normal leading-5">
-                      +255
-                    </span>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-start gap-4 w-full max-sm:gap-3">
+            <TabsContent value="mobile" className="w-full mt-0">
+              <div className="flex flex-col items-start gap-2 w-full bg-white">
+                <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
+                  <div className="flex items-center gap-4 flex-[1_0_0]">
+                    <div className="flex flex-col justify-center items-center gap-2.5 bg-[#E8E9F1] px-2.5 py-[5px] rounded-md">
+                      <span className="text-[#1F2024] text-sm font-normal leading-5">
+                        +255
+                      </span>
+                    </div>
+                    <Input
+                      {...register("phoneNumber", { 
+                        required: loginMethod === "mobile" ? "Phone number is required" : false 
+                      })}
+                      type="tel"
+                      placeholder="Phone Number"
+                      className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
                   </div>
+                </div>
+                {errors.phoneNumber && (
+                  <span className="text-red-500 text-xs">{errors.phoneNumber.message}</span>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="email" className="w-full mt-0">
+              <div className="flex flex-col items-start gap-2 w-full bg-white">
+                <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
                   <Input
-                    {...register("phoneNumber", { 
-                      required: loginMethod === "mobile" ? "Phone number is required" : false 
+                    {...register("email", { 
+                      required: loginMethod === "email" ? "Email is required" : false,
+                      pattern: loginMethod === "email" ? {
+                        value: /^\S+@\S+$/i,
+                        message: "Invalid email address"
+                      } : undefined
                     })}
-                    type="tel"
-                    placeholder="Phone Number"
+                    type="email"
+                    placeholder="Email Address"
                     className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
+                {errors.email && (
+                  <span className="text-red-500 text-xs">{errors.email.message}</span>
+                )}
               </div>
-              {errors.phoneNumber && (
-                <span className="text-red-500 text-xs">{errors.phoneNumber.message}</span>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="email" className="w-full mt-0">
-            <div className="flex flex-col items-start gap-2 w-full bg-white">
-              <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
-                <Input
-                  {...register("email", { 
-                    required: loginMethod === "email" ? "Email is required" : false,
-                    pattern: loginMethod === "email" ? {
-                      value: /^\S+@\S+$/i,
-                      message: "Invalid email address"
-                    } : undefined
-                  })}
-                  type="email"
-                  placeholder="Email Address"
-                  className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-              {errors.email && (
-                <span className="text-red-500 text-xs">{errors.email.message}</span>
-              )}
-            </div>
-          </TabsContent>
+            </TabsContent>
 
           <div className="flex flex-col items-start gap-2 w-full bg-white">
             <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
@@ -147,24 +148,25 @@ export const SignInForm = () => {
             )}
           </div>
 
-          <button
-            type="button"
-            className="w-full text-[#006FFD] text-xs font-bold text-left hover:underline"
-          >
-            Forgot Password?
-          </button>
-
-          <div className="flex flex-col items-start gap-4 w-full">
-            <Button
-              type="submit"
-              variant="primary"
-              size="custom"
-              className="flex h-12 justify-center items-center gap-2 w-full box-border bg-[#E5F1FF] px-4 py-3 rounded-xl max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5"
+            <button
+              type="button"
+              className="w-full text-[#006FFD] text-xs font-bold text-left hover:underline"
             >
-              <span className="text-[#006FFD] text-xs font-bold">Sign In</span>
-            </Button>
-          </div>
-        </form>
+              Forgot Password?
+            </button>
+
+            <div className="flex flex-col items-start gap-4 w-full">
+              <Button
+                type="submit"
+                variant="primary"
+                size="custom"
+                className="flex h-12 justify-center items-center gap-2 w-full box-border bg-[#E5F1FF] px-4 py-3 rounded-xl max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5"
+              >
+                <span className="text-[#006FFD] text-xs font-bold">Sign In</span>
+              </Button>
+            </div>
+          </form>
+        </Tabs>
 
         <div className="flex flex-col items-center gap-6 w-full">
           <p className="text-[#71727A] text-center text-sm font-bold">
