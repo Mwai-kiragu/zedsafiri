@@ -5,25 +5,31 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { Header } from "@/components/Header"
+import { MarketingSection } from "@/components/MarketingSection"
 
-interface SignInFormData {
+interface SignUpFormData {
   phoneNumber?: string
   email?: string
   password: string
+  confirmPassword: string
+  fullName: string
 }
 
-export const SignInForm = () => {
+const SignUpForm = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loginMethod, setLoginMethod] = useState<"mobile" | "email">("mobile")
   
-  const { register, handleSubmit, formState: { errors } } = useForm<SignInFormData>()
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<SignUpFormData>()
+  const password = watch("password")
 
-  const onSubmit = (data: SignInFormData) => {
-    console.log("Sign in data:", data)
+  const onSubmit = (data: SignUpFormData) => {
+    console.log("Sign up data:", data)
   }
 
   const handleSocialLogin = (provider: "google" | "apple") => {
-    console.log(`Sign in with ${provider}`)
+    console.log(`Sign up with ${provider}`)
   }
 
   return (
@@ -31,24 +37,24 @@ export const SignInForm = () => {
       <div className="flex flex-col items-start gap-4 w-full max-sm:gap-3">
         <div className="flex justify-between items-center w-full">
           <h1 className="text-[#006FFD] text-lg font-bold leading-6 tracking-[0.09px]">
-            Sign in
+            Sign up
           </h1>
           <div className="flex justify-center items-center gap-2 px-4 py-2 rounded-lg">
             <p className="text-[#71727A] text-xs font-normal tracking-[0.12px]">
-              Create an account?{" "}
-              <Link to="/signup" className="text-[#006FFD] font-bold hover:underline">
-                Sign up
+              Already have an account?{" "}
+              <Link to="/" className="text-[#006FFD] font-bold hover:underline">
+                Sign in
               </Link>
             </p>
           </div>
         </div>
         
         <h2 className="w-[315px] text-[#111] text-[28px] font-normal leading-8 max-sm:w-full max-sm:text-2xl max-sm:leading-7">
-          Hi, Welcome
+          Create Account
         </h2>
         
         <p className="w-full text-[#71727A] text-base font-normal leading-[22px] max-sm:text-sm max-sm:leading-5">
-          Sign in to book or view your tickets.
+          Sign up to start booking your tickets seamlessly.
         </p>
 
         <Tabs 
@@ -74,6 +80,20 @@ export const SignInForm = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-start gap-4 w-full max-sm:gap-3">
+            <div className="flex flex-col items-start gap-2 w-full bg-white">
+              <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
+                <Input
+                  {...register("fullName", { required: "Full name is required" })}
+                  type="text"
+                  placeholder="Full Name"
+                  className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+              {errors.fullName && (
+                <span className="text-red-500 text-xs">{errors.fullName.message}</span>
+              )}
+            </div>
+
             <TabsContent value="mobile" className="w-full mt-0">
               <div className="flex flex-col items-start gap-2 w-full bg-white">
                 <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
@@ -121,40 +141,70 @@ export const SignInForm = () => {
               </div>
             </TabsContent>
 
-          <div className="flex flex-col items-start gap-2 w-full bg-white">
-            <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
-              <div className="flex items-center gap-4 flex-[1_0_0]">
-                <Input
-                  {...register("password", { required: "Password is required" })}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
+            <div className="flex flex-col items-start gap-2 w-full bg-white">
+              <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
+                <div className="flex items-center gap-4 flex-[1_0_0]">
+                  <Input
+                    {...register("password", { 
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters"
+                      }
+                    })}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="w-4 h-4 relative text-[#8F9098] hover:text-[#71727A] transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOffIcon className="w-4 h-4" />
+                  ) : (
+                    <EyeIcon className="w-4 h-4" />
+                  )}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="w-4 h-4 relative text-[#8F9098] hover:text-[#71727A] transition-colors"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? (
-                  <EyeOffIcon className="w-4 h-4" />
-                ) : (
-                  <EyeIcon className="w-4 h-4" />
-                )}
-              </button>
+              {errors.password && (
+                <span className="text-red-500 text-xs">{errors.password.message}</span>
+              )}
             </div>
-            {errors.password && (
-              <span className="text-red-500 text-xs">{errors.password.message}</span>
-            )}
-          </div>
 
-            <button
-              type="button"
-              className="w-full text-[#006FFD] text-xs font-bold text-left hover:underline"
-            >
-              Forgot Password?
-            </button>
+            <div className="flex flex-col items-start gap-2 w-full bg-white">
+              <div className="flex h-12 items-center gap-2 w-full border box-border px-4 py-3 rounded-xl border-solid border-[#C5C6CC] max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5">
+                <div className="flex items-center gap-4 flex-[1_0_0]">
+                  <Input
+                    {...register("confirmPassword", { 
+                      required: "Please confirm your password",
+                      validate: (value) => value === password || "Passwords do not match"
+                    })}
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm Password"
+                    className="border-0 p-0 h-auto bg-transparent text-[#71727A] text-sm font-normal leading-5 placeholder:text-[#71727A] focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="w-4 h-4 relative text-[#8F9098] hover:text-[#71727A] transition-colors"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOffIcon className="w-4 h-4" />
+                  ) : (
+                    <EyeIcon className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <span className="text-red-500 text-xs">{errors.confirmPassword.message}</span>
+              )}
+            </div>
 
             <div className="flex flex-col items-start gap-4 w-full">
               <Button
@@ -163,7 +213,7 @@ export const SignInForm = () => {
                 size="custom"
                 className="flex h-12 justify-center items-center gap-2 w-full box-border bg-[#E5F1FF] px-4 py-3 rounded-xl max-sm:h-11 max-sm:px-3.5 max-sm:py-2.5"
               >
-                <span className="text-[#006FFD] text-xs font-bold">Sign In</span>
+                <span className="text-[#006FFD] text-xs font-bold">Create Account</span>
               </Button>
             </div>
           </form>
@@ -202,3 +252,24 @@ export const SignInForm = () => {
     </section>
   )
 }
+
+const SignUp = () => {
+  return (
+    <div className="w-[1440px] h-[960px] relative overflow-hidden bg-[#F1F7FF] max-md:w-full max-md:max-w-screen-lg max-md:h-auto max-md:min-h-screen max-sm:w-full max-sm:h-auto max-sm:min-h-screen">
+      <img
+        src="https://api.builder.io/api/v1/image/assets/TEMP/65945d6d85000cdd48713f2a96d08767595563da?width=2880"
+        alt="background"
+        className="w-[1440px] h-[500px] absolute object-cover left-0 top-[461px] max-md:w-full max-md:h-[300px] max-md:top-auto max-md:bottom-0 max-sm:w-full max-sm:h-[200px]"
+      />
+      <div className="flex w-[1440px] flex-col items-start gap-4 absolute h-[769px] left-0 top-0 max-md:w-full max-md:h-auto">
+        <Header />
+        <main className="flex justify-between items-start w-full box-border px-32 py-0 max-md:flex-col max-md:gap-8 max-md:px-16 max-md:py-0 max-sm:flex-col max-sm:gap-6 max-sm:px-6 max-sm:py-0">
+          <SignUpForm />
+          <MarketingSection />
+        </main>
+      </div>
+    </div>
+  )
+}
+
+export default SignUp
