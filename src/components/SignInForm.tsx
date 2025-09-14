@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EyeIcon, EyeOffIcon, Globe } from "lucide-react"
 import googleIcon from "@/assets/google-icon.png"
+import appleIcon from "@/assets/apple-icon.png"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface SignInFormData {
@@ -222,9 +223,7 @@ export const SignInForm = () => {
               onClick={() => handleSocialLogin("apple")}
               className="flex h-10 justify-center items-center gap-2 flex-[1_0_0] bg-[#1F2024] px-4 py-2 rounded-[63px] max-sm:w-full max-sm:h-11"
             >
-              <div className="w-3 h-3 relative">
-                <div className="w-3 h-3 absolute bg-[#FBFBFB] left-0 top-0" />
-              </div>
+              <img src={appleIcon} alt="Apple" className="w-3 h-3" />
               <span className="text-[#FBFBFB] text-xs font-bold">{t('auth.apple')}</span>
             </Button>
           </div>
