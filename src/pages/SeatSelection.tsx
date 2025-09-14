@@ -3,24 +3,32 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Clock, MapPin, Users } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft, Clock, MapPin, Users, AlertTriangle } from "lucide-react"
 import Layout from "@/components/Layout"
 import { SeatLockService } from "@/services/seatLockService"
+import { SeatConfigService, type SeatConfig } from "@/services/seatConfigService"
+import { useToast } from "@/hooks/use-toast"
 
 interface SeatData {
-  number: string
+  id: string
+  config: SeatConfig
   status: 'FREE' | 'HELD' | 'OCCUPIED' | 'BLOCKED'
+  isSelected: boolean
 }
 
 const SeatSelection = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const { booking, searchParams } = location.state || {}
   
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
   const [seatData, setSeatData] = useState<SeatData[]>([])
   const [lockId, setLockId] = useState<string | null>(null)
   const [countdown, setCountdown] = useState<number>(0)
+  const [vehicleLayout, setVehicleLayout] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
 
   // Initialize seats when component mounts
   useEffect(() => {
@@ -29,22 +37,35 @@ const SeatSelection = () => {
       return
     }
 
-    // Initialize seats for this trip (simulating 24 seats in a bus)
-    const tripId = booking.id
-    SeatLockService.initializeSeats(tripId, 24)
-    
-    // Get current seat status
-    const seatStatuses = SeatLockService.getSeatStatus(tripId)
-    const seats: SeatData[] = []
-    
-    for (let i = 1; i <= 24; i++) {
-      const seatNumber = `${i}A`
-      const seatId = `${tripId}-${seatNumber}`
-      const status = seatStatuses.get(seatId) || 'FREE'
-      seats.push({ number: seatNumber, status })
+    try {
+      // Get vehicle layout for this specific trip
+      const layout = SeatConfigService.getLayoutForTrip(booking)
+      setVehicleLayout(layout)
+      
+      // Initialize seat locking service with proper layout
+      SeatLockService.initializeSeats(booking.id, booking)
+      
+      // Get current seat status
+      const seatStatuses = SeatLockService.getSeatStatus(booking.id)
+      const seats: SeatData[] = []
+      
+      layout.layout.forEach(seatConfig => {
+        const seatId = `${booking.id}-${seatConfig.id}`
+        const status = seatStatuses.get(seatId) || 'FREE'
+        seats.push({ 
+          id: seatConfig.id,
+          config: seatConfig,
+          status,
+          isSelected: false
+        })
+      })
+      
+      setSeatData(seats)
+      setError(null)
+    } catch (err) {
+      setError('Failed to load seat map. Please try again.')
+      console.error('Seat initialization error:', err)
     }
-    
-    setSeatData(seats)
   }, [booking, navigate])
 
   // Update countdown timer
@@ -56,74 +77,109 @@ const SeatSelection = () => {
       setCountdown(remaining)
       
       if (remaining <= 0) {
+        // Lock expired
         setSelectedSeats([])
         setLockId(null)
-        // Refresh seat data
-        const tripId = booking.id
-        const seatStatuses = SeatLockService.getSeatStatus(tripId)
-        setSeatData(prev => prev.map(seat => ({
-          ...seat,
-          status: seatStatuses.get(`${tripId}-${seat.number}`) || 'FREE'
-        })))
+        refreshSeatData()
+        toast({
+          title: "Seat Hold Expired",
+          description: "Your seat selection has expired. Please select seats again.",
+          variant: "destructive"
+        })
       }
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [lockId, booking])
+  }, [lockId, booking, toast])
+
+  const refreshSeatData = () => {
+    if (!booking || !vehicleLayout) return
+    
+    const seatStatuses = SeatLockService.getSeatStatus(booking.id)
+    setSeatData(prev => prev.map(seat => ({
+      ...seat,
+      status: seatStatuses.get(`${booking.id}-${seat.id}`) || 'FREE',
+      isSelected: selectedSeats.includes(seat.id)
+    })))
+  }
 
   const handleSeatClick = async (seat: SeatData) => {
-    if (seat.status === 'OCCUPIED' || seat.status === 'BLOCKED') return
+    // Prevent selection of occupied or blocked seats
+    if (seat.status === 'OCCUPIED' || seat.status === 'BLOCKED') {
+      toast({
+        title: "Seat Unavailable", 
+        description: seat.status === 'OCCUPIED' ? 
+          `Seat ${seat.id} is already booked by another passenger.` :
+          `Seat ${seat.id} is currently blocked and unavailable.`,
+        variant: "destructive"
+      })
+      return
+    }
 
     const tripId = booking.id
-    const seatId = `${tripId}-${seat.number}`
+    const seatId = `${tripId}-${seat.id}`
 
-    if (selectedSeats.includes(seat.number)) {
-      // Deselect seat - remove from selection and free the seat
-      const newSelection = selectedSeats.filter(s => s !== seat.number)
+    if (selectedSeats.includes(seat.id)) {
+      // Deselect seat - remove from selection
+      const newSelection = selectedSeats.filter(s => s !== seat.id)
       setSelectedSeats(newSelection)
       
-      // Update seat status to FREE
-      setSeatData(prev => prev.map(s => ({
-        ...s,
-        status: s.number === seat.number ? 'FREE' : s.status
-      })))
-      
-      // If no seats left selected, clear lock
-      if (newSelection.length === 0) {
+      if (newSelection.length === 0 && lockId) {
+        // Release all locks if no seats selected
+        SeatLockService.releaseUserLocks('user123')
         setLockId(null)
+      } else if (lockId) {
+        // Update lock with remaining seats
+        const seatIds = newSelection.map(num => `${tripId}-${num}`)
+        const result = await SeatLockService.holdSeats(tripId, seatIds, 'user123', 'WEB')
+        if (result.success && result.lockId) {
+          setLockId(result.lockId)
+        }
       }
     } else {
+      // Check if seat is held by another user
+      if (seat.status === 'HELD') {
+        const userLock = SeatLockService.getUserActiveLock('user123')
+        const isHeldByThisUser = userLock?.seatIds.some(id => id.endsWith(seat.id))
+        
+        if (!isHeldByThisUser) {
+          toast({
+            title: "Seat Unavailable",
+            description: `Seat ${seat.id} is currently held by another passenger. Please select a different seat.`,
+            variant: "destructive"
+          })
+          return
+        }
+      }
+      
       // Select seat - add to selection and hold it
-      const newSelection = [...selectedSeats, seat.number]
+      const newSelection = [...selectedSeats, seat.id]
       const seatIds = newSelection.map(num => `${tripId}-${num}`)
       
-      const result = await SeatLockService.holdSeats(
-        tripId, 
-        seatIds, 
-        'user123', // In real app, this would be actual user ID
-        'WEB'
-      )
+      const result = await SeatLockService.holdSeats(tripId, seatIds, 'user123', 'WEB')
 
       if (result.success && result.lockId) {
         setSelectedSeats(newSelection)
         setLockId(result.lockId)
-        
-        // Update seat display - mark all selected seats as HELD
-        setSeatData(prev => prev.map(s => ({
-          ...s,
-          status: newSelection.includes(s.number) ? 'HELD' : 
-                  (selectedSeats.includes(s.number) && !newSelection.includes(s.number) ? 'FREE' : s.status)
-        })))
+        toast({
+          title: "Seat Selected",
+          description: `Seat ${seat.id} has been reserved for you.`,
+        })
       } else {
-        // Handle conflict - show error message
-        console.error('Failed to hold seats:', result.conflictSeats)
-        // You could show a toast here about seat unavailability
+        const conflictSeats = result.conflictSeats?.map(id => id.split('-')[1]).join(', ')
+        toast({
+          title: "Selection Failed",
+          description: `Failed to reserve seats: ${conflictSeats} are no longer available.`,
+          variant: "destructive"
+        })
       }
     }
+    
+    refreshSeatData()
   }
 
   const getSeatColor = (seat: SeatData) => {
-    if (selectedSeats.includes(seat.number)) {
+    if (selectedSeats.includes(seat.id)) {
       return 'bg-primary text-primary-foreground hover:bg-primary/90'
     }
     
@@ -131,7 +187,7 @@ const SeatSelection = () => {
       case 'FREE':
         return 'bg-secondary hover:bg-secondary/80 border-2 border-secondary'
       case 'HELD':
-        return selectedSeats.includes(seat.number) 
+        return selectedSeats.includes(seat.id) 
           ? 'bg-primary text-primary-foreground' 
           : 'bg-yellow-400 text-yellow-900 cursor-not-allowed'
       case 'OCCUPIED':
@@ -143,8 +199,36 @@ const SeatSelection = () => {
     }
   }
 
+  const getSeatIcon = (seat: SeatData) => {
+    if (seat.config.type === 'WINDOW') return '🪟'
+    if (seat.config.type === 'AISLE') return '🚶'
+    return '💺'
+  }
+
+  const handleCancelSelection = () => {
+    if (lockId) {
+      SeatLockService.cancelBooking('user123')
+      setSelectedSeats([])
+      setLockId(null)
+      refreshSeatData()
+      toast({
+        title: "Selection Cancelled",
+        description: "Your seat selection has been cancelled and seats are now available for other passengers.",
+      })
+    }
+  }
+
   const handleProceedToPayment = () => {
     if (selectedSeats.length === 0) return
+    
+    if (!lockId) {
+      toast({
+        title: "No Active Reservation",
+        description: "Please select seats first.",
+        variant: "destructive"
+      })
+      return
+    }
 
     navigate('/booking/confirm', {
       state: {
@@ -165,6 +249,29 @@ const SeatSelection = () => {
 
   if (!booking) {
     return <div>Loading...</div>
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Alert className="max-w-md">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (!vehicleLayout) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div>Loading seat map...</div>
+        </div>
+      </Layout>
+    )
   }
 
   return (
@@ -288,42 +395,70 @@ const SeatSelection = () => {
                       <span>Selected</span>
                     </div>
                     <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-yellow-400 rounded"></div>
+                      <span>Held by Others</span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-destructive rounded"></div>
                       <span>Occupied</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-muted rounded"></div>
+                      <span>Blocked</span>
+                    </div>
+                  </div>
+
+                  {/* Vehicle Info */}
+                  <div className="bg-muted/30 p-3 rounded-lg mb-4">
+                    <div className="text-sm font-medium">{vehicleLayout.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {vehicleLayout.class} Class • {vehicleLayout.totalSeats} seats • {booking.operator}
                     </div>
                   </div>
                   
                   {/* Selection Instructions */}
                   <div className="text-center text-sm text-muted-foreground mb-4">
-                    Click seats to select multiple. Click again to deselect.
+                    Click seats to select. Seats are held for {Math.floor(SeatLockService['DEFAULT_LOCK_TTL'] / 60000)} minutes.
                   </div>
 
                   {/* Seat Grid */}
                   <div className="space-y-4">
                     <div className="text-center text-sm font-medium text-muted-foreground">Front</div>
-                    <div className="grid grid-cols-4 gap-3 max-w-xs mx-auto">
+                    <div className={`grid gap-2 max-w-sm mx-auto ${
+                      vehicleLayout.seatsPerRow === 4 ? 'grid-cols-4' : 
+                      vehicleLayout.seatsPerRow === 5 ? 'grid-cols-5' : 'grid-cols-4'
+                    }`}>
                       {seatData.map((seat) => (
                         <button
-                          key={seat.number}
+                          key={seat.id}
                           onClick={() => handleSeatClick(seat)}
-                          disabled={seat.status === 'OCCUPIED' || seat.status === 'BLOCKED'}
+                          disabled={
+                            seat.status === 'OCCUPIED' || 
+                            seat.status === 'BLOCKED' ||
+                            (seat.status === 'HELD' && !selectedSeats.includes(seat.id))
+                          }
                           className={`
-                            w-12 h-12 rounded font-medium text-xs transition-colors
+                            w-12 h-12 rounded font-medium text-xs transition-all relative
                             ${getSeatColor(seat)}
-                            ${seat.status === 'OCCUPIED' || seat.status === 'BLOCKED' 
-                              ? '' : 'hover:scale-105 transition-transform'
+                            ${(seat.status === 'OCCUPIED' || seat.status === 'BLOCKED' || 
+                              (seat.status === 'HELD' && !selectedSeats.includes(seat.id)))
+                              ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 transition-transform'
                             }
                           `}
+                          title={`${seat.id} - ${seat.config.type} - ${seat.config.class}`}
                         >
-                          {seat.number}
+                          <span className="text-xs absolute top-0 left-0 w-3 h-3">
+                            {getSeatIcon(seat)}
+                          </span>
+                          {seat.id}
                         </button>
                       ))}
                     </div>
                     <div className="text-center text-sm font-medium text-muted-foreground">Back</div>
                   </div>
 
-                  {/* Continue Button */}
-                  <div className="mt-8">
+                  {/* Action Buttons */}
+                  <div className="mt-8 space-y-2">
                     <Button 
                       onClick={handleProceedToPayment}
                       disabled={selectedSeats.length === 0}
@@ -332,6 +467,17 @@ const SeatSelection = () => {
                     >
                       Proceed to Payment ({selectedSeats.length} seat{selectedSeats.length !== 1 ? 's' : ''})
                     </Button>
+                    
+                    {selectedSeats.length > 0 && (
+                      <Button 
+                        onClick={handleCancelSelection}
+                        variant="outline"
+                        className="w-full"
+                        size="sm"
+                      >
+                        Cancel Selection
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

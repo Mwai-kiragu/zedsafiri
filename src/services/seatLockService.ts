@@ -1,4 +1,5 @@
 import { SeatLock, SeatStatus } from '@/types/booking';
+import { SeatConfigService } from './seatConfigService';
 
 // Atomic Seat Locking System (Simulated)
 export class SeatLockService {
@@ -7,11 +8,27 @@ export class SeatLockService {
   private static readonly DEFAULT_LOCK_TTL = 5 * 60 * 1000; // 5 minutes
   private static readonly AGENT_LOCK_TTL = 10 * 60 * 1000; // 10 minutes for agents
 
-  static initializeSeats(tripId: string, seatCount: number): void {
-    // Initialize seats as FREE for simulation
-    for (let i = 1; i <= seatCount; i++) {
-      const seatId = `${tripId}-${i}A`;
-      this.seatStatuses.set(seatId, 'FREE');
+  static initializeSeats(tripId: string, trip?: any): void {
+    // Use seat configuration service to get proper layout
+    if (trip) {
+      const layout = SeatConfigService.getLayoutForTrip(trip);
+      layout.layout.forEach(seat => {
+        const seatId = `${tripId}-${seat.id}`;
+        // Initialize based on seat configuration
+        if (seat.isOccupied) {
+          this.seatStatuses.set(seatId, 'OCCUPIED');
+        } else if (seat.isBlocked) {
+          this.seatStatuses.set(seatId, 'BLOCKED');
+        } else {
+          this.seatStatuses.set(seatId, 'FREE');
+        }
+      });
+    } else {
+      // Fallback to simple initialization for backwards compatibility
+      for (let i = 1; i <= 24; i++) {
+        const seatId = `${tripId}-${i}A`;
+        this.seatStatuses.set(seatId, 'FREE');
+      }
     }
   }
 
@@ -113,6 +130,30 @@ export class SeatLockService {
         this.releaseLock(lockId);
       }
     }
+  }
+
+  static cancelBooking(userId: string): boolean {
+    // Immediately release all locks for this user
+    this.releaseUserLocks(userId);
+    return true;
+  }
+
+  static markSeatOccupied(tripId: string, seatId: string): void {
+    // Manually mark a seat as occupied (for testing)
+    const fullSeatId = seatId.includes('-') ? seatId : `${tripId}-${seatId}`;
+    this.seatStatuses.set(fullSeatId, 'OCCUPIED');
+  }
+
+  static markSeatBlocked(tripId: string, seatId: string): void {
+    // Manually mark a seat as blocked (for testing)
+    const fullSeatId = seatId.includes('-') ? seatId : `${tripId}-${seatId}`;
+    this.seatStatuses.set(fullSeatId, 'BLOCKED');
+  }
+
+  static freeSeat(tripId: string, seatId: string): void {
+    // Manually free a seat (for testing)
+    const fullSeatId = seatId.includes('-') ? seatId : `${tripId}-${seatId}`;
+    this.seatStatuses.set(fullSeatId, 'FREE');
   }
 
   private static expireLock(lockId: string): void {
